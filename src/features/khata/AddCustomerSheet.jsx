@@ -4,6 +4,7 @@ import { UserPlus } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Sheet } from '../../components/ui/Sheet.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
+import { newId } from '../../lib/ids.js';
 import { buildCustomer } from '../../lib/ledger.js';
 import { useShopDispatch, useStrings } from '../../store/ShopContext.jsx';
 
@@ -18,7 +19,7 @@ export function AddCustomerSheet({ open, initialName, onClose, onAdded }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    const customer = buildCustomer({ name, alias }, { id: `c_${Date.now().toString(36)}` });
+    const customer = buildCustomer({ name, alias }, { id: newId('c') });
     dispatch({ type: 'ADD_CUSTOMER', payload: customer });
     showToast({ type: 'success', message: t.khata.added(customer.name) });
     onAdded(customer.id);

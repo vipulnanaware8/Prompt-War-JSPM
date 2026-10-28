@@ -16,7 +16,8 @@ export function StockBar({ stock, reorderLevel }) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg">
+      {/* The bar is visual only; the text label next to it says the same thing. */}
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg" aria-hidden="true">
         <div
           className={`h-full rounded-full ${LEVELS[level].bar}`}
           style={{ width: `${width}%` }}

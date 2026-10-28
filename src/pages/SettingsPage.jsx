@@ -4,7 +4,7 @@ import { AboutCard } from '../features/settings/AboutCard.jsx';
 import { DataCard } from '../features/settings/DataCard.jsx';
 import { ShopNameForm } from '../features/settings/ShopNameForm.jsx';
 import { UpiForm } from '../features/settings/UpiForm.jsx';
-import { WhatsAppAlertsCard } from '../features/settings/WhatsAppAlertsCard.jsx';
+import { AlertsCard } from '../features/settings/AlertsCard.jsx';
 import { LanguageSwitch } from '../features/voice/LanguageSwitch.jsx';
 import { useShop, useShopDispatch, useStrings } from '../store/ShopContext.jsx';
 
@@ -63,7 +63,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <WhatsAppAlertsCard />
+      <AlertsCard />
       <DataCard />
       <AboutCard />
     </div>

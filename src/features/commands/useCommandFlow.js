@@ -9,9 +9,12 @@ import {
   buildCustomer,
   buildTransaction,
   computeBalances,
+  linesTotal,
+  priceLines,
 } from '../../lib/ledger.js';
 import { buildPromise, daysUntil } from '../../lib/promises.js';
 import { applyCorrection } from '../../lib/correction.js';
+import { newId } from '../../lib/ids.js';
 import { SPEECH_LANG } from '../../i18n/strings.js';
 import { useShop, useShopDispatch, useStrings } from '../../store/ShopContext.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
@@ -52,6 +55,67 @@ export function useCommandFlow() {
     [muted, quiet, t, speak, language],
   );
 
+  /** Speak and show a saved change, with Undo for 10 s. `undo` reverts it in the store. */
+  const undoable = useCallback(
+    (sentence, { message = sentence, undo, undoneMessage }) => {
+      say(sentence);
+      showToast({
+        type: 'success',
+        message,
+        duration: 10000,
+        action: {
+          label: t.toast.undo,
+          onClick: () => {
+            undo();
+            cancelSpeech();
+            setTimeout(() => showToast({ type: 'warning', message: undoneMessage }), 0);
+          },
+        },
+      });
+    },
+    [say, showToast, cancelSpeech, t],
+  );
+
+  /** Promises are not money, so no confirmation card: save now, speak back, offer Undo. */
+  const savePromise = useCallback(
+    (result) => {
+      const promise = buildPromise(
+        { customerId: result.customer.id, when: result.promiseDay, amount: result.amount },
+        { id: newId('p') },
+      );
+      const customer = state.customers.find((c) => c.id === promise.customerId);
+      const [y, m, d] = promise.due.split('-').map(Number);
+      const when = t.promise.when(daysUntil(promise.due), new Date(y, m - 1, d).getDay());
+      const sentence = t.promise.saved(spokenName(customer, language), when);
+      dispatch({ type: 'ADD_PROMISE', payload: promise });
+      setAnswer(null);
+      setVoiceOpen(false);
+      undoable(sentence, {
+        undo: () => dispatch({ type: 'REMOVE_PROMISE', payload: promise.id }),
+        undoneMessage: t.promise.removed,
+      });
+    },
+    [state.customers, t, language, dispatch, undoable],
+  );
+
+  /** Open the confirmation card and read out the bill total (same maths as the card). */
+  const openDraft = useCallback(
+    (result) => {
+      setAnswer(null);
+      setVoiceOpen(false);
+      const next = toDraft(result);
+      setDraft(next);
+      if (next.intent !== 'cash_sale' && next.intent !== 'credit_sale') return;
+      const total =
+        next.intent === 'credit_sale' && next.lines.length === 0
+          ? Math.round(next.amount ?? 0)
+          : linesTotal(priceLines(next.lines, state.items));
+      // Quiet mode would turn this into "Ho gaya" before anything is saved, so skip it.
+      if (total > 0 && !quiet) say(t.speech.billTotal(total));
+    },
+    [state.items, quiet, say, t],
+  );
+
   /** Parse a command and show the card, an answer, or "not understood". Returns the intent. */
   const submit = useCallback(
     (input) => {
@@ -75,42 +139,15 @@ export function useCommandFlow() {
         setAnswer({ kind: 'answer', ...view, customerId: data.customerId ?? null });
         say(view.sentence);
       } else if (result.intent === 'promise') {
-        // Not money, so no confirmation card: save now, speak back, offer Undo.
-        const promise = buildPromise(
-          { customerId: result.customer.id, when: result.promiseDay, amount: result.amount },
-          { id: `p_${Date.now().toString(36)}` },
-        );
-        const customer = state.customers.find((c) => c.id === promise.customerId);
-        const [y, m, d] = promise.due.split('-').map(Number);
-        const when = t.promise.when(daysUntil(promise.due), new Date(y, m - 1, d).getDay());
-        const sentence = t.promise.saved(spokenName(customer, language), when);
-        dispatch({ type: 'ADD_PROMISE', payload: promise });
-        setAnswer(null);
-        setVoiceOpen(false);
-        say(sentence);
-        showToast({
-          type: 'success',
-          message: sentence,
-          duration: 10000,
-          action: {
-            label: t.toast.undo,
-            onClick: () => {
-              dispatch({ type: 'REMOVE_PROMISE', payload: promise.id });
-              cancelSpeech();
-              setTimeout(() => showToast({ type: 'warning', message: t.promise.removed }), 0);
-            },
-          },
-        });
+        savePromise(result);
       } else if (result.intent === 'unknown') {
         setAnswer({ kind: 'unknown', suggestions: result.suggestions });
       } else {
-        setAnswer(null);
-        setVoiceOpen(false);
-        setDraft(toDraft(result));
+        openDraft(result);
       }
       return result.intent;
     },
-    [cancelSpeech, state, t, say, language, dispatch, showToast, draft],
+    [cancelSpeech, state, t, say, showToast, draft, savePromise, openDraft],
   );
 
   const mic = useSpeechRecognition({
@@ -135,26 +172,16 @@ export function useCommandFlow() {
     if (draft.intent === 'price_update') {
       const item = state.items.find((i) => i.id === draft.lines[0].itemId);
       const price = Math.round(draft.amount * 100) / 100;
-      const sentence = t.price.saved(item.name, price);
       dispatch({ type: 'SET_PRICE', payload: { itemId: item.id, price } });
       setDraft(null);
-      say(sentence);
-      showToast({
-        type: 'success',
-        message: sentence,
-        duration: 10000,
-        action: {
-          label: t.toast.undo,
-          onClick: () => {
-            dispatch({ type: 'SET_PRICE', payload: { itemId: item.id, price: item.price } });
-            cancelSpeech();
-            setTimeout(() => showToast({ type: 'warning', message: t.price.undone }), 0);
-          },
-        },
+      undoable(t.price.saved(item.name, price), {
+        undo: () =>
+          dispatch({ type: 'SET_PRICE', payload: { itemId: item.id, price: item.price } }),
+        undoneMessage: t.price.undone,
       });
       return;
     }
-    const tx = buildTransaction(draft, state.items, { id: `t_${Date.now().toString(36)}` });
+    const tx = buildTransaction(draft, state.items, { id: newId('t') });
     const customer = state.customers.find((c) => c.id === tx.customerId);
     const before = customer ? computeBalances(state.customers, state.transactions)[customer.id] : 0;
     const sentence = resultSentence(t, tx, {
@@ -165,26 +192,17 @@ export function useCommandFlow() {
     dispatch({ type: 'CONFIRM_TX', payload: tx });
     setDraft(null);
     setText(''); // ready for the next entry
-    say(sentence);
-    showToast({
-      type: 'success',
+    undoable(sentence, {
       message: `${t.toast.done} ${sentence}`,
-      duration: 10000,
-      action: {
-        label: t.toast.undo,
-        onClick: () => {
-          dispatch({ type: 'UNDO_TX', payload: tx.id });
-          cancelSpeech();
-          setTimeout(() => showToast({ type: 'warning', message: t.toast.undone }), 0);
-        },
-      },
+      undo: () => dispatch({ type: 'UNDO_TX', payload: tx.id }),
+      undoneMessage: t.toast.undone,
     });
-  }, [draft, state, t, language, dispatch, say, showToast, cancelSpeech]);
+  }, [draft, state, t, language, dispatch, undoable]);
 
   /** Add the unknown name from the command as a new customer and select it. */
   const addCustomer = useCallback(
     (name) => {
-      const customer = buildCustomer({ name }, { id: `c_${Date.now().toString(36)}` });
+      const customer = buildCustomer({ name }, { id: newId('c') });
       dispatch({ type: 'ADD_CUSTOMER', payload: customer });
       setDraft((d) => ({
         ...d,
@@ -210,6 +228,9 @@ export function useCommandFlow() {
     setVoiceOpen(false);
   }, [mic]);
 
+  const cancel = useCallback(() => setDraft(null), []);
+  const replay = useCallback(() => answer?.sentence && say(answer.sentence), [answer, say]);
+
   return {
     text,
     setText,
@@ -219,10 +240,10 @@ export function useCommandFlow() {
     draft,
     setDraft,
     confirm,
-    cancel: () => setDraft(null),
+    cancel,
     addCustomer,
     answer,
-    replay: () => answer?.sentence && say(answer.sentence),
+    replay,
     voiceOpen,
     openVoice,
     showVoice,

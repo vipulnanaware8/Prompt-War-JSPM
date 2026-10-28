@@ -35,6 +35,22 @@ export function isStopMessage(text) {
   return /^\s*\/?(stop|band|bandh|unsubscribe|बंद)\s*$/i.test(String(text));
 }
 
+/**
+ * What a bot update asks for. Only private text chats count; everything else is ignored.
+ * @param {object|undefined} message Telegram `update.message`
+ * @returns {{ kind: 'shop'|'customer', code: string } | { kind: 'stop'|'hello'|'ignore' }}
+ */
+export function webhookAction(message) {
+  if (message?.chat?.type !== 'private' || typeof message.text !== 'string') {
+    return { kind: 'ignore' };
+  }
+  const start = parseStartCode(message.text);
+  if (start) return start;
+  if (isStopMessage(message.text)) return { kind: 'stop' };
+  if (message.text.startsWith('/start')) return { kind: 'hello' };
+  return { kind: 'ignore' };
+}
+
 const itemList = (items) =>
   items.map((i) => `• ${escapeHtml(i.name)} — ${i.stock} ${escapeHtml(i.unit)}`).join('\n');
 

@@ -64,6 +64,12 @@ export function App() {
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[240px_minmax(0,1fr)_380px]">
+      <a
+        href="#main"
+        className="sr-only rounded-md bg-primary px-4 py-2 font-semibold text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60]"
+      >
+        {t.skipToContent}
+      </a>
       <Sidebar section={section} onNavigate={navigate} />
 
       <div className="min-w-0">
@@ -75,7 +81,7 @@ export function App() {
         )}
         <div className="mx-auto max-w-[720px] px-4 pb-[calc(152px+env(safe-area-inset-bottom))] sm:px-6 lg:max-w-[760px] lg:px-8 lg:pb-12">
           <Header />
-          <main>
+          <main id="main" tabIndex={-1} className="outline-none">
             {/* 200 ms fade/slide between sections (FR-NAV-5); only fades under reduced motion */}
             <AnimatePresence mode="wait" initial={false}>
               <motion.div

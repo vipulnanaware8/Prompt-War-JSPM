@@ -1,9 +1,12 @@
-import { StrictMode } from 'react';
+import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/index.css';
-import { AppProviders } from './app/AppProviders.jsx';
-import { App } from './app/App.jsx';
-import { LandingPage } from './pages/LandingPage.jsx';
+
+// Each route loads only its own code: landing visitors never download the app, and back.
+const AppRoot = lazy(() => import('./app/AppRoot.jsx'));
+const LandingPage = lazy(() =>
+  import('./pages/LandingPage.jsx').then((m) => ({ default: m.LandingPage })),
+);
 
 // "/" is the landing page; the app lives at "/app" (Firebase rewrites every path to index.html).
 const isApp = window.location.pathname.startsWith('/app');
@@ -17,12 +20,6 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {isApp ? (
-      <AppProviders>
-        <App />
-      </AppProviders>
-    ) : (
-      <LandingPage />
-    )}
+    <Suspense fallback={null}>{isApp ? <AppRoot /> : <LandingPage />}</Suspense>
   </StrictMode>,
 );

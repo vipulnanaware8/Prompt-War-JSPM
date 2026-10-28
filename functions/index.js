@@ -21,14 +21,13 @@ import {
   dailySummaryText,
   escapeHtml,
   indiaDayKey,
-  isStopMessage,
   lowStockText,
   newlyLowItems,
   notRecentlyAlerted,
-  parseStartCode,
   paymentReminderText,
   promiseDueText,
   promisesDue,
+  webhookAction,
 } from './alerts.js';
 import { isValidSecret, sendMessage } from './telegram.js';
 
@@ -69,7 +68,7 @@ async function forEachShop(label, task) {
 }
 
 /** Reads and deletes a one-time code; null when missing or expired. */
-async function useCode(collection, code, ttl) {
+async function claimCode(collection, code, ttl) {
   const ref = db.doc(`${collection}/${code}`);
   const snap = await ref.get();
   const createdAt = snap.get('createdAt')?.toMillis?.() ?? 0;
@@ -79,9 +78,12 @@ async function useCode(collection, code, ttl) {
 }
 
 async function linkShop(chat, from, code) {
-  const data = await useCode('connectCodes', code, SHOP_CODE_TTL_MS);
+  const data = await claimCode('connectCodes', code, SHOP_CODE_TTL_MS);
   if (!data) {
-    await send(chat.id, 'Yeh link purana ho gaya. App ke Settings mein "Telegram jodiye" dobara dabaiye.');
+    await send(
+      chat.id,
+      'Yeh link purana ho gaya. App ke Settings mein "Telegram jodiye" dobara dabaiye.',
+    );
     return;
   }
   await db.doc(`connections/${data.uid}`).set({
@@ -96,7 +98,7 @@ async function linkShop(chat, from, code) {
 }
 
 async function linkCustomer(chat, code) {
-  const data = await useCode('inviteCodes', code, INVITE_TTL_MS);
+  const data = await claimCode('inviteCodes', code, INVITE_TTL_MS);
   if (!data) {
     await send(chat.id, 'Yeh link purana ho gaya. Dukaan se naya link maangiye.');
     return;
@@ -133,18 +135,16 @@ export const telegramWebhook = onRequest(
       return;
     }
     const message = req.body?.message;
-    if (message?.chat?.type === 'private' && typeof message.text === 'string') {
-      try {
-        const start = parseStartCode(message.text);
-        if (start?.kind === 'shop') await linkShop(message.chat, message.from, start.code);
-        else if (start?.kind === 'customer') await linkCustomer(message.chat, start.code);
-        else if (isStopMessage(message.text)) await unlinkChat(message.chat.id);
-        else if (message.text.startsWith('/start')) {
-          await send(message.chat.id, 'Namaste! Jodne ke liye Bol Ke Hisaab app wala link kholiye.');
-        }
-      } catch (error) {
-        logger.error('Webhook update failed', { error: error.message });
+    const action = webhookAction(message);
+    try {
+      if (action.kind === 'shop') await linkShop(message.chat, message.from, action.code);
+      if (action.kind === 'customer') await linkCustomer(message.chat, action.code);
+      if (action.kind === 'stop') await unlinkChat(message.chat.id);
+      if (action.kind === 'hello') {
+        await send(message.chat.id, 'Namaste! Jodne ke liye Bol Ke Hisaab app wala link kholiye.');
       }
+    } catch (error) {
+      logger.error('Webhook update failed', { error: error.message });
     }
     res.sendStatus(200); // always 200, or Telegram retries the same update
   },

@@ -38,9 +38,9 @@ export const isValidUpiId = (value) => /^[\w.-]{2,}@[a-zA-Z][\w.-]*$/.test(value
  * @returns {string}
  */
 export function buildReminder(lang, customer, shop, upiId = '') {
-  const template = TEMPLATES[lang] ?? TEMPLATES.hinglish;
-  const message = template(displayName(customer, lang), shop, customer.balance);
+  const language = lang in TEMPLATES ? lang : 'hinglish';
+  const message = TEMPLATES[language](displayName(customer, language), shop, customer.balance);
   if (!upiId) return message;
-  const upiLine = (UPI_LINES[lang] ?? UPI_LINES.hinglish)(upiId);
+  const upiLine = UPI_LINES[language](upiId);
   return `${message}\n\n${upiLine}\n${upiLink(upiId, shop, customer.balance)}`;
 }

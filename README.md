@@ -23,9 +23,11 @@ When you tap the mic for the first time, allow microphone access. The mic needs 
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Runs the Vitest unit tests (parser, ledger, queries, forecast, reminders, promises, to-dos, voice fixes, seed, persistence) |
+| `npm test` | Runs the Vitest unit tests (parser, ledger, queries, forecast, reminders, promises, to-dos, voice fixes, store, i18n, month report, Telegram alerts) |
+| `npm run test:coverage` | Runs the tests with V8 coverage; fails below 90% statements / 85% branches on the logic modules |
 | `npm run lint` | Runs ESLint (react, react-hooks, jsx-a11y) and the Prettier check |
 | `npm run build` | Builds for production into `dist/` |
+| `npm run check` | Lint + coverage + build — the same steps CI runs on every push (`.github/workflows/ci.yml`) |
 | `npm run preview` | Serves the production build at http://localhost:4173 |
 | `npm run build && firebase deploy` | Deploys `dist/` to Firebase Hosting (project in `.firebaserc`) |
 
@@ -111,6 +113,6 @@ src/lib/               pure logic: parser, ledger, queries, forecast, reminders,
 public/                PWA manifest, service worker, icons
 src/store/             context, reducer, selectors, persistence
 src/data/              catalogue, customers, deterministic 7-day seed
-src/i18n/strings.js    all UI text and speech templates (Hinglish, हिंदी, मराठी)
+src/i18n/              UI text and speech templates: hinglish.js, hi.js, mr.js (strings.js combines them)
 tests/                 Vitest unit tests for src/lib
 ```

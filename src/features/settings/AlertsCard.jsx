@@ -1,16 +1,16 @@
-// WhatsApp alerts: link the owner's number, then choose which alerts arrive automatically.
-// Linking works by the owner sending "CONNECT <code>" from their own WhatsApp, so only a
-// number they hold can be linked (functions/index.js matches the code).
-import { useEffect, useState } from 'react';
-import { CheckCircle2, MessageCircle } from 'lucide-react';
+// Telegram alerts (free): link the owner's Telegram, then choose which alerts arrive
+// automatically. Linking works by the owner tapping Start on a one-time bot link in their own
+// Telegram (functions/index.js matches the code).
+import { useEffect, useId, useState } from 'react';
+import { CheckCircle2, Send } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
-import { alertSettings, formatWhatsAppNumber } from '../../lib/alertSnapshot.js';
+import { alertSettings } from '../../lib/alertSnapshot.js';
 import {
+  botLink,
   cloudConfigured,
-  connectLink,
-  disconnectWhatsApp,
+  disconnectAlerts,
   newConnectCode,
   registerConnectCode,
   watchConnection,
@@ -19,17 +19,24 @@ import { useShop, useShopDispatch, useStrings } from '../../store/ShopContext.js
 
 const EVERY_DAYS = [3, 7, 15];
 
+// Each switch's strings live at t.alerts[key] and t.alerts[`${key}Help`].
+const ALERT_TOGGLES = ['dailySummary', 'lowStock', 'promises', 'customerReminders'];
+
 function Toggle({ label, help, checked, onChange }) {
+  const helpId = useId();
   return (
     <label className="flex min-h-11 cursor-pointer items-center justify-between gap-4">
       <span>
         <span className="block text-body font-semibold">{label}</span>
-        <span className="block text-small text-muted">{help}</span>
+        <span id={helpId} className="block text-small text-muted">
+          {help}
+        </span>
       </span>
       <input
         type="checkbox"
         role="switch"
         aria-label={label}
+        aria-describedby={helpId}
         checked={checked}
         onChange={onChange}
         className="size-6 shrink-0 cursor-pointer accent-primary"
@@ -38,7 +45,7 @@ function Toggle({ label, help, checked, onChange }) {
   );
 }
 
-export function WhatsAppAlertsCard() {
+export function AlertsCard() {
   const t = useStrings();
   const alerts = useShop((s) => alertSettings(s.settings));
   const dispatch = useShopDispatch();
@@ -56,7 +63,7 @@ export function WhatsAppAlertsCard() {
       if (data) setWaiting(false);
     })
       .then((stop) => (active ? (unsubscribe = stop) : stop()))
-      .catch((error) => console.error('WhatsApp status failed', error));
+      .catch((error) => console.error('Alerts status failed', error));
     return () => {
       active = false;
       unsubscribe();
@@ -68,9 +75,9 @@ export function WhatsAppAlertsCard() {
   }
 
   function connect() {
-    // Open WhatsApp first, inside the tap, so the browser does not block the new tab.
+    // Open Telegram first, inside the tap, so the browser does not block the new tab.
     const code = newConnectCode();
-    window.open(connectLink(code), '_blank', 'noopener');
+    window.open(botLink(code), '_blank', 'noopener');
     setWaiting(true);
     update({ enabled: true });
     registerConnectCode(code).catch(() => {
@@ -82,7 +89,7 @@ export function WhatsAppAlertsCard() {
   async function disconnect() {
     update({ enabled: false }); // stops uploads before the data is deleted
     try {
-      await disconnectWhatsApp();
+      await disconnectAlerts();
       setConnection(null);
       showToast({ type: 'success', message: t.alerts.disconnected });
     } catch {
@@ -114,7 +121,7 @@ export function WhatsAppAlertsCard() {
             </p>
           )}
           <Button onClick={connect} className="self-start">
-            <MessageCircle size={20} aria-hidden="true" />
+            <Send size={20} aria-hidden="true" />
             {t.alerts.connect}
           </Button>
         </div>
@@ -122,32 +129,17 @@ export function WhatsAppAlertsCard() {
         <div className="flex flex-col gap-6">
           <p className="flex items-center gap-2 rounded-lg bg-success-soft p-3 text-small font-medium text-success">
             <CheckCircle2 size={20} aria-hidden="true" />
-            {t.alerts.connected(formatWhatsAppNumber(connection.number))}
+            {t.alerts.connected(connection.name)}
           </p>
-          <Toggle
-            label={t.alerts.dailySummary}
-            help={t.alerts.dailySummaryHelp}
-            checked={alerts.dailySummary}
-            onChange={() => update({ dailySummary: !alerts.dailySummary })}
-          />
-          <Toggle
-            label={t.alerts.lowStock}
-            help={t.alerts.lowStockHelp}
-            checked={alerts.lowStock}
-            onChange={() => update({ lowStock: !alerts.lowStock })}
-          />
-          <Toggle
-            label={t.alerts.promises}
-            help={t.alerts.promisesHelp}
-            checked={alerts.promises}
-            onChange={() => update({ promises: !alerts.promises })}
-          />
-          <Toggle
-            label={t.alerts.customerReminders}
-            help={t.alerts.customerRemindersHelp}
-            checked={alerts.customerReminders}
-            onChange={() => update({ customerReminders: !alerts.customerReminders })}
-          />
+          {ALERT_TOGGLES.map((key) => (
+            <Toggle
+              key={key}
+              label={t.alerts[key]}
+              help={t.alerts[`${key}Help`]}
+              checked={alerts[key]}
+              onChange={() => update({ [key]: !alerts[key] })}
+            />
+          ))}
           {alerts.customerReminders && (
             <label className="flex flex-col gap-1 text-small font-medium text-muted">
               {t.alerts.everyDays}

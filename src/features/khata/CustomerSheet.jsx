@@ -11,7 +11,8 @@ import { formatQty, formatRupees, nativeAlias } from '../../lib/format.js';
 import { selectCustomersByBalance, selectCustomerTransactions } from '../../store/selectors.js';
 import { useShop, useStrings } from '../../store/ShopContext.jsx';
 import { ReminderButton } from './ReminderButton.jsx';
-import { CustomerWhatsAppForm } from './CustomerWhatsAppForm.jsx';
+import { CustomerTelegramInvite } from './CustomerTelegramInvite.jsx';
+import { alertSettings } from '../../lib/alertSnapshot.js';
 import { cloudConfigured } from '../../lib/cloud.js';
 
 export function CustomerSheet({ customerId, open, onClose }) {
@@ -20,6 +21,10 @@ export function CustomerSheet({ customerId, open, onClose }) {
   const history = useShop((s) => selectCustomerTransactions(s, customerId));
   const items = useShop((s) => s.items);
   const itemName = (id) => items.find((i) => i.id === id)?.name ?? id;
+  const remindersOn = useShop((s) => {
+    const alerts = alertSettings(s.settings);
+    return cloudConfigured && alerts.enabled && alerts.customerReminders;
+  });
 
   return (
     <Sheet
@@ -58,8 +63,7 @@ export function CustomerSheet({ customerId, open, onClose }) {
             </p>
           )}
 
-          {/* key: reset the form when another customer's sheet opens */}
-          {cloudConfigured && <CustomerWhatsAppForm key={customer.id} customer={customer} />}
+          {remindersOn && customer.balance > 0 && <CustomerTelegramInvite customer={customer} />}
 
           <section className="flex flex-col gap-2">
             <h3 className="text-body font-semibold">{t.khata.historyTitle}</h3>
