@@ -1,19 +1,12 @@
 // Last 5 transactions, newest first (FR-DASH-6).
-import { Banknote, HandCoins, Inbox, NotebookPen, PackagePlus } from 'lucide-react';
+import { Inbox } from 'lucide-react';
+import { INTENT_STYLE } from '../../components/ui/Badge.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
 import { TimeAgo } from '../../components/ui/TimeAgo.jsx';
 import { formatQty, formatRupees } from '../../lib/format.js';
 import { selectRecentTransactions } from '../../store/selectors.js';
 import { useShop, useStrings } from '../../store/ShopContext.jsx';
-
-// Intent icons (SRS 7.2) with their badge colours.
-const TYPE_STYLE = {
-  credit_sale: { icon: NotebookPen, tone: 'bg-primary-soft text-primary-strong' },
-  cash_sale: { icon: Banknote, tone: 'bg-success-soft text-success' },
-  payment: { icon: HandCoins, tone: 'bg-success-soft text-success' },
-  stock_in: { icon: PackagePlus, tone: 'bg-info-soft text-info' },
-};
 
 export function RecentActivity() {
   const t = useStrings();
@@ -41,7 +34,7 @@ export function RecentActivity() {
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {recent.map((tx) => {
-            const { icon: Icon, tone } = TYPE_STYLE[tx.type];
+            const { icon: Icon, tone } = INTENT_STYLE[tx.type];
             return (
               <li key={tx.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <span

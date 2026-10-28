@@ -1,6 +1,7 @@
 // Derived values (SRS 8.1). Balances are always computed from transactions, never stored.
 
 import { dayKey, startOfDay } from '../lib/format.js';
+import { computeBalances, todayTotals } from '../lib/ledger.js';
 
 const SALE_TYPES = ['credit_sale', 'cash_sale'];
 
@@ -9,13 +10,7 @@ const SALE_TYPES = ['credit_sale', 'cash_sale'];
  * @returns {Record<string, number>}
  */
 export function selectBalances(state) {
-  const balances = Object.fromEntries(state.customers.map((c) => [c.id, c.openingBalance]));
-  for (const tx of state.transactions) {
-    if (!tx.customerId || !(tx.customerId in balances)) continue;
-    if (tx.type === 'credit_sale') balances[tx.customerId] += tx.amount;
-    if (tx.type === 'payment') balances[tx.customerId] -= tx.amount;
-  }
-  return balances;
+  return computeBalances(state.customers, state.transactions);
 }
 
 /** Customers with balance and last activity, highest balance first. */
@@ -50,17 +45,7 @@ export function selectUdhaarPending(state) {
 
 /** Today's sales and cash, matching SRS 8.1. */
 export function selectTodayTotals(state, now = new Date()) {
-  const today = dayKey(now);
-  const totals = { sales: 0, salesCount: 0, cash: 0 };
-  for (const tx of state.transactions) {
-    if (dayKey(tx.ts) !== today) continue;
-    if (SALE_TYPES.includes(tx.type)) {
-      totals.sales += tx.amount;
-      totals.salesCount += 1;
-    }
-    if (tx.type === 'cash_sale' || tx.type === 'payment') totals.cash += tx.amount;
-  }
-  return totals;
+  return todayTotals(state.transactions, now);
 }
 
 /** Items at or below their reorder level (FR-STOCK-2). */
