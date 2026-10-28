@@ -4,7 +4,7 @@ import { applyTransaction, undoLast } from '../lib/ledger.js';
 
 /**
  * @param {import('../data/seed.js').ShopState} state
- * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'ADD_PROMISE'|'REMOVE_PROMISE'|'SET_PRICE'|'UPDATE_SETTINGS'|'RESET', payload: any }} action
+ * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'UPDATE_CUSTOMER'|'ADD_PROMISE'|'REMOVE_PROMISE'|'SET_PRICE'|'UPDATE_SETTINGS'|'RESET', payload: any }} action
  */
 export function shopReducer(state, action) {
   switch (action.type) {
@@ -14,6 +14,13 @@ export function shopReducer(state, action) {
       return undoLast(state, action.payload);
     case 'ADD_CUSTOMER':
       return { ...state, customers: [...state.customers, action.payload] };
+    case 'UPDATE_CUSTOMER': // e.g. WhatsApp number + consent for reminders
+      return {
+        ...state,
+        customers: state.customers.map((c) =>
+          c.id === action.payload.id ? { ...c, ...action.payload.changes } : c,
+        ),
+      };
     case 'ADD_PROMISE': // one open promise per customer; the newest replaces the old one
       return {
         ...state,

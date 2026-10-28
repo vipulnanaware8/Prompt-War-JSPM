@@ -17,6 +17,7 @@ import { KhataPage } from '../pages/KhataPage.jsx';
 import { StockPage } from '../pages/StockPage.jsx';
 import { SettingsPage } from '../pages/SettingsPage.jsx';
 import { useShop, useStorageAvailable, useStrings } from '../store/ShopContext.jsx';
+import { useCloudSync } from '../store/useCloudSync.js';
 
 const PAGES = { home: HomePage, khata: KhataPage, stock: StockPage, settings: SettingsPage };
 const TYPING_TAGS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'];
@@ -32,6 +33,7 @@ export function App() {
   const Page = PAGES[section];
   const { toggle: toggleMic } = flow.mic;
   const cardOpen = flow.draft !== null;
+  useCloudSync();
 
   function navigate(id, options = null) {
     setParams(options);

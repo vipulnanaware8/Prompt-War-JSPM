@@ -41,6 +41,9 @@
   --font-sans: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
   /* Headings and money, like a hand-kept ledger (font-ledger) */
   --font-ledger: 'Noto Serif', 'Noto Serif Devanagari', Georgia, serif;
+  /* Landing page (font-display headings, font-landing body) */
+  --font-display: 'Eczar', 'Noto Serif Devanagari', Georgia, serif;
+  --font-landing: 'Manrope', 'Noto Sans Devanagari', system-ui, sans-serif;
 
   /* Type scale (size / line height) — SRS 7.2 Typography */
   --text-display: 40px;

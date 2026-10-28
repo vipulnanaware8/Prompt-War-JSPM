@@ -2,7 +2,7 @@
 // with no internet. Pages try the network first (to pick up new versions); files are cache-first
 // because their names change with every build. Speech recognition still needs internet.
 
-const CACHE = 'bkh-v1';
+const CACHE = 'bkh-v2';
 const SHELL = ['/', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png'];
 
 self.addEventListener('install', (event) => {

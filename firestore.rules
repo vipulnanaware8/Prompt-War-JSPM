@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Each phone signs in anonymously. It may only touch its own shop summary and link status.
+// Telegram chats are linked only by the webhook, after the person taps Start on a one-time
+// link in their own Telegram. connections, customerChats and alertLog are server-only
+// (the owner may read and delete their own connection).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /shops/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /connections/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+    }
+    match /connectCodes/{code} {
+      allow create: if request.auth != null
+        && code.matches('^[A-Z0-9]{6}$')
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'createdAt']);
+    }
+    match /inviteCodes/{code} {
+      allow create: if request.auth != null
+        && code.matches('^C[A-Z0-9]{7}$')
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.customerId is string
+        && request.resource.data.keys().hasOnly(['uid', 'customerId', 'createdAt']);
+    }
+  }
+}

@@ -29,19 +29,31 @@ export function buildPromise({ customerId, when, amount }, { id, now = new Date(
 }
 
 /**
- * Promises not yet kept that are due today or earlier, most overdue first.
- * @returns {Array<{ promise: object, customer: object, balance: number, days: number }>}
+ * Promises not yet kept (customer still owes and has not paid since promising), any due date.
+ * @returns {object[]}
  */
-export function duePromises(state, now = new Date()) {
-  const balances = computeBalances(state.customers, state.transactions);
+export function openPromises(
+  state,
+  balances = computeBalances(state.customers, state.transactions),
+) {
   return (state.promises ?? [])
-    .filter((p) => daysUntil(p.due, now) <= 0 && balances[p.customerId] > 0)
+    .filter((p) => balances[p.customerId] > 0)
     .filter(
       (p) =>
         !state.transactions.some(
           (tx) => tx.type === 'payment' && tx.customerId === p.customerId && tx.ts >= p.createdAt,
         ),
-    )
+    );
+}
+
+/**
+ * Promises not yet kept that are due today or earlier, most overdue first.
+ * @returns {Array<{ promise: object, customer: object, balance: number, days: number }>}
+ */
+export function duePromises(state, now = new Date()) {
+  const balances = computeBalances(state.customers, state.transactions);
+  return openPromises(state, balances)
+    .filter((p) => daysUntil(p.due, now) <= 0)
     .map((p) => ({
       promise: p,
       customer: state.customers.find((c) => c.id === p.customerId),

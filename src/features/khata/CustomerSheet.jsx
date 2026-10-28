@@ -11,6 +11,8 @@ import { formatQty, formatRupees, nativeAlias } from '../../lib/format.js';
 import { selectCustomersByBalance, selectCustomerTransactions } from '../../store/selectors.js';
 import { useShop, useStrings } from '../../store/ShopContext.jsx';
 import { ReminderButton } from './ReminderButton.jsx';
+import { CustomerWhatsAppForm } from './CustomerWhatsAppForm.jsx';
+import { cloudConfigured } from '../../lib/cloud.js';
 
 export function CustomerSheet({ customerId, open, onClose }) {
   const t = useStrings();
@@ -55,6 +57,9 @@ export function CustomerSheet({ customerId, open, onClose }) {
               {t.khata.noReminder}
             </p>
           )}
+
+          {/* key: reset the form when another customer's sheet opens */}
+          {cloudConfigured && <CustomerWhatsAppForm key={customer.id} customer={customer} />}
 
           <section className="flex flex-col gap-2">
             <h3 className="text-body font-semibold">{t.khata.historyTitle}</h3>
