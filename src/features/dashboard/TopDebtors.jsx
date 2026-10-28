@@ -22,7 +22,7 @@ export function TopDebtors({ onOpen }) {
                 type="button"
                 onClick={() => onOpen(c.id)}
                 aria-label={t.khata.openCustomer(c.name)}
-                className="-mx-2 flex w-[calc(100%+16px)] items-center gap-3 rounded-md px-2 py-3 text-left transition duration-150 ease-out hover:bg-bg"
+                className="-mx-2 flex w-[calc(100%+16px)] items-center gap-3 rounded-md px-2 py-3 text-left transition-[transform,opacity] duration-150 ease-out hover:bg-bg"
               >
                 <Avatar name={c.name} />
                 <div className="min-w-0 flex-1">

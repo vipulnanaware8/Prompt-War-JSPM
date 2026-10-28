@@ -32,7 +32,7 @@ export function StockPage({ params }) {
         {Object.keys(FILTERS).map((id) => (
           <Chip key={id} selected={id === filter} onClick={() => setFilter(id)}>
             {t.stockScreen.filters[id]}
-            <span className="ml-1.5 tabular-nums opacity-70">
+            <span className="ml-1.5 font-normal tabular-nums">
               {items.filter(FILTERS[id]).length}
             </span>
           </Chip>

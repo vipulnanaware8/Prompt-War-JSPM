@@ -15,7 +15,7 @@ import { HomePage } from '../pages/HomePage.jsx';
 import { KhataPage } from '../pages/KhataPage.jsx';
 import { StockPage } from '../pages/StockPage.jsx';
 import { SettingsPage } from '../pages/SettingsPage.jsx';
-import { useStorageAvailable, useStrings } from '../store/ShopContext.jsx';
+import { useShop, useStorageAvailable, useStrings } from '../store/ShopContext.jsx';
 
 const PAGES = { home: HomePage, khata: KhataPage, stock: StockPage, settings: SettingsPage };
 const TYPING_TAGS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'];
@@ -27,6 +27,7 @@ export function App() {
   const storageAvailable = useStorageAvailable();
   const t = useStrings();
   const flow = useCommandFlow();
+  const language = useShop((s) => s.settings.language);
   const Page = PAGES[section];
   const { toggle: toggleMic } = flow.mic;
   const cardOpen = flow.draft !== null;
@@ -41,6 +42,11 @@ export function App() {
     if (flow.voiceOpen) flow.closeVoice();
     setCustomerSheet({ id, open: true });
   }
+
+  // Screen readers and fonts follow the chosen language (NFR-11).
+  useEffect(() => {
+    document.documentElement.lang = { hinglish: 'en-IN', hi: 'hi', mr: 'mr' }[language];
+  }, [language]);
 
   // Space toggles the mic when focus is not in a control (NFR-8).
   useEffect(() => {

@@ -130,6 +130,7 @@ export function ConfirmationSheet({ flow }) {
             className={`sm:min-w-56 ${done ? 'bg-success hover:bg-success' : ''}`}
             disabled={Boolean(reason)}
             onClick={handleConfirm}
+            data-autofocus
           >
             {done ? (
               <Check size={28} strokeWidth={3} aria-label={t.toast.done} />

@@ -8,7 +8,7 @@ export function Card({ title, action, onClick, className = '', children, ...prop
       <button
         type="button"
         onClick={onClick}
-        className={`${BASE} block w-full text-left transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-raised ${className}`}
+        className={`${BASE} block w-full text-left transition-[transform,opacity] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-raised ${className}`}
         {...props}
       >
         {children}

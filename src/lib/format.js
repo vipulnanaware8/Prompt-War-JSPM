@@ -74,7 +74,16 @@ const DEVANAGARI = /[ऀ-ॿ]/;
  */
 export function displayName(customer, language) {
   if (!customer) return '';
-  const native = customer.aliases.find((a) => DEVANAGARI.test(a));
+  const native = nativeAlias(customer);
   if (language !== 'hinglish' && native) return native;
   return customer.name.split(' ')[0];
+}
+
+/**
+ * First Devanagari alias of a customer or item, e.g. "रमेश" — shown under Latin names.
+ * @param {{ aliases: string[] }} entity
+ * @returns {string|undefined}
+ */
+export function nativeAlias(entity) {
+  return entity.aliases.find((a) => DEVANAGARI.test(a));
 }

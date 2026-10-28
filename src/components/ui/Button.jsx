@@ -22,7 +22,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`inline-flex items-center justify-center gap-2 rounded-md transition duration-150 ease-out active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md transition-[transform,opacity] duration-150 ease-out active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
       {...props}
     />
   );

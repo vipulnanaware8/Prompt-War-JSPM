@@ -7,12 +7,10 @@ import { EmptyState } from '../../components/ui/EmptyState.jsx';
 import { INTENT_STYLE } from '../../components/ui/Badge.jsx';
 import { Sheet } from '../../components/ui/Sheet.jsx';
 import { TimeAgo } from '../../components/ui/TimeAgo.jsx';
-import { formatQty, formatRupees } from '../../lib/format.js';
+import { formatQty, formatRupees, nativeAlias } from '../../lib/format.js';
 import { selectCustomersByBalance, selectCustomerTransactions } from '../../store/selectors.js';
 import { useShop, useStrings } from '../../store/ShopContext.jsx';
 import { ReminderButton } from './ReminderButton.jsx';
-
-const DEVANAGARI = /[ऀ-ॿ]/;
 
 export function CustomerSheet({ customerId, open, onClose }) {
   const t = useStrings();
@@ -33,9 +31,7 @@ export function CustomerSheet({ customerId, open, onClose }) {
             <Avatar name={customer.name} />
             <div className="min-w-0">
               <h2 className="truncate text-h2 font-semibold">{customer.name}</h2>
-              <p className="text-small text-muted">
-                {customer.aliases.find((a) => DEVANAGARI.test(a))}
-              </p>
+              <p className="text-small text-muted">{nativeAlias(customer)}</p>
             </div>
           </div>
 

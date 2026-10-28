@@ -11,7 +11,7 @@ export function IconButton({ label, variant = 'ghost', className = '', children,
       type="button"
       aria-label={label}
       title={label}
-      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full transition duration-150 ease-out active:scale-[.98] ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full transition-[transform,opacity] duration-150 ease-out active:scale-[.98] ${VARIANTS[variant]} ${className}`}
       {...props}
     >
       {children}

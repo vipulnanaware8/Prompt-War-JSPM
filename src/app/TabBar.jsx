@@ -11,7 +11,7 @@ function Tab({ id, icon: Icon, active, label, onNavigate }) {
         type="button"
         onClick={() => onNavigate(id)}
         aria-current={active ? 'page' : undefined}
-        className={`flex h-full w-full flex-col items-center justify-center gap-1 text-caption font-medium transition duration-150 ease-out ${
+        className={`flex h-full w-full flex-col items-center justify-center gap-1 text-caption font-medium transition-[transform,opacity] duration-150 ease-out ${
           active ? 'text-primary' : 'text-muted'
         }`}
       >
@@ -41,7 +41,7 @@ export function TabBar({ section, onNavigate, onMic }) {
             type="button"
             onClick={onMic}
             aria-label={t.voice.open}
-            className="-mt-6 flex size-[72px] items-center justify-center rounded-full bg-primary text-white shadow-raised ring-4 ring-bg transition duration-150 ease-out active:scale-[.98]"
+            className="-mt-6 flex size-[72px] items-center justify-center rounded-full bg-primary text-white shadow-raised ring-4 ring-bg transition-[transform,opacity] duration-150 ease-out active:scale-[.98]"
           >
             <Mic size={32} aria-hidden="true" />
           </button>

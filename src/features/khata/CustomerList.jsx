@@ -4,8 +4,7 @@ import { Avatar } from '../../components/ui/Avatar.jsx';
 import { BalanceChip } from '../../components/ui/BalanceChip.jsx';
 import { TimeAgo } from '../../components/ui/TimeAgo.jsx';
 import { useStrings } from '../../store/ShopContext.jsx';
-
-const DEVANAGARI = /[ऀ-ॿ]/;
+import { nativeAlias } from '../../lib/format.js';
 
 export function CustomerList({ customers, onOpen }) {
   const t = useStrings();
@@ -17,15 +16,12 @@ export function CustomerList({ customers, onOpen }) {
             type="button"
             onClick={() => onOpen(c.id)}
             aria-label={t.khata.openCustomer(c.name)}
-            className="flex w-full items-center gap-3 px-4 py-3 text-left transition duration-150 ease-out hover:bg-bg sm:px-6"
+            className="flex w-full items-center gap-3 px-4 py-3 text-left transition-[transform,opacity] duration-150 ease-out hover:bg-bg sm:px-6"
           >
             <Avatar name={c.name} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-semibold">
-                {c.name}{' '}
-                <span className="text-small font-normal text-muted">
-                  {c.aliases.find((a) => DEVANAGARI.test(a))}
-                </span>
+                {c.name} <span className="text-small font-normal text-muted">{nativeAlias(c)}</span>
               </p>
               <TimeAgo ts={c.lastActivity} className="text-small text-muted" />
             </div>

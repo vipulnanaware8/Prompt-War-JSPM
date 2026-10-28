@@ -3,15 +3,13 @@
 import { ArrowRight, X } from 'lucide-react';
 import { IconButton } from '../../components/ui/IconButton.jsx';
 import { QtyStepper } from '../../components/ui/QtyStepper.jsx';
-import { formatQty, formatRupees } from '../../lib/format.js';
+import { formatQty, formatRupees, nativeAlias } from '../../lib/format.js';
 import { lineSubtotal } from '../../lib/ledger.js';
 import { useStrings } from '../../store/ShopContext.jsx';
 
-const DEVANAGARI = /[ऀ-ॿ]/;
-
 export function LineItemRow({ line, item, intent, onQty, onRemove }) {
   const t = useStrings();
-  const alias = item.aliases.find((a) => DEVANAGARI.test(a));
+  const alias = nativeAlias(item);
   const isStock = intent === 'stock_in';
 
   return (

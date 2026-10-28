@@ -3,11 +3,27 @@
 
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useDragControls } from 'framer-motion';
+import { AnimatePresence, motion, useDragControls, useIsPresent } from 'framer-motion';
 
 const FOCUSABLE =
   'button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const SPRING = { type: 'spring', stiffness: 400, damping: 34 };
+
+/**
+ * Full-screen layer for the sheet. While it is leaving (exit animation) it no longer takes
+ * clicks and is hidden from screen readers, so a closing sheet can never block the app.
+ */
+function Layer({ children }) {
+  const isPresent = useIsPresent();
+  return (
+    <div
+      aria-hidden={!isPresent || undefined}
+      className={`fixed inset-0 z-[45] flex items-end justify-center lg:items-center lg:p-6 ${isPresent ? '' : 'pointer-events-none'}`}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function Sheet({ open, onClose, label, dark = false, full = false, onKeyDown, children }) {
   const panelRef = useRef(null);
@@ -20,7 +36,13 @@ export function Sheet({ open, onClose, label, dark = false, full = false, onKeyD
     if (!open) return undefined;
     const previous = document.activeElement;
     document.body.style.overflow = 'hidden';
-    const timer = setTimeout(() => panelRef.current?.querySelector(FOCUSABLE)?.focus(), 50);
+    // A control marked data-autofocus (e.g. Confirm) gets focus first, else the first control.
+    const timer = setTimeout(() => {
+      const panel = panelRef.current;
+      const target =
+        panel?.querySelector('[data-autofocus]:not([disabled])') ?? panel?.querySelector(FOCUSABLE);
+      target?.focus();
+    }, 50);
     return () => {
       clearTimeout(timer);
       document.body.style.overflow = '';
@@ -56,7 +78,7 @@ export function Sheet({ open, onClose, label, dark = false, full = false, onKeyD
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[45] flex items-end justify-center lg:items-center lg:p-6">
+        <Layer>
           <motion.div
             className="absolute inset-0 bg-ink/50"
             initial={{ opacity: 0 }}
@@ -96,7 +118,7 @@ export function Sheet({ open, onClose, label, dark = false, full = false, onKeyD
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
           </motion.div>
-        </div>
+        </Layer>
       )}
     </AnimatePresence>,
     document.body,

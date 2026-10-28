@@ -27,12 +27,15 @@ export function VoicePanel({ flow, onOpenCustomer }) {
       )}
 
       <CommandBar value={flow.text} onChange={flow.setText} onSubmit={flow.submit} />
-      <AnswerCard
-        answer={flow.answer}
-        onReplay={flow.replay}
-        onPick={flow.run}
-        onOpenCustomer={onOpenCustomer}
-      />
+      {/* Answers are announced to screen readers (NFR-9) */}
+      <div aria-live="polite">
+        <AnswerCard
+          answer={flow.answer}
+          onReplay={flow.replay}
+          onPick={flow.run}
+          onOpenCustomer={onOpenCustomer}
+        />
+      </div>
       <DemoChips onPick={flow.run} />
       {mic.status === 'idle' && (
         <p className="text-caption font-medium text-panel-muted">{t.voice.hint}</p>

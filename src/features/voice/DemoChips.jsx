@@ -13,7 +13,7 @@ export function DemoChips({ onPick }) {
             key={phrase}
             type="button"
             onClick={() => onPick(phrase)}
-            className="min-h-11 rounded-full border border-panel-muted/40 px-3 py-2 text-left text-small font-medium text-panel-text transition duration-150 ease-out hover:bg-white/10 active:scale-[.98]"
+            className="min-h-11 rounded-full border border-panel-muted/40 px-3 py-2 text-left text-small font-medium text-panel-text transition-[transform,opacity] duration-150 ease-out hover:bg-white/10 active:scale-[.98]"
           >
             {phrase}
           </button>

@@ -7,7 +7,7 @@ export function QtyStepper({ value, unit, onChange, lessLabel, moreLabel }) {
   const step = HALF_UNITS.includes(unit) ? 0.5 : 1;
   const round = (n) => Math.round(n * 100) / 100;
   const button =
-    'flex size-11 items-center justify-center rounded-full border border-border text-ink transition duration-150 ease-out hover:bg-primary-soft active:scale-[.98] disabled:opacity-40';
+    'flex size-11 items-center justify-center rounded-full border border-border text-ink transition-[transform,opacity] duration-150 ease-out hover:bg-primary-soft active:scale-[.98] disabled:opacity-40';
 
   return (
     <div className="flex items-center gap-1">

@@ -27,7 +27,7 @@ export function CommandBar({ value, onChange, onSubmit }) {
         aria-label={t.voice.send}
         title={t.voice.send}
         disabled={!text}
-        className="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary text-white transition duration-150 ease-out hover:bg-primary-strong active:scale-[.98] disabled:opacity-40"
+        className="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary text-white transition-[transform,opacity] duration-150 ease-out hover:bg-primary-strong active:scale-[.98] disabled:opacity-40"
       >
         <SendHorizontal size={20} aria-hidden="true" />
       </button>

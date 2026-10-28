@@ -9,7 +9,7 @@ export function Chip({ selected = false, dark = false, className = '', ...props 
     <button
       type="button"
       aria-pressed={selected}
-      className={`inline-flex min-h-11 items-center rounded-full border px-4 text-small font-semibold transition duration-150 ease-out active:scale-[.98] ${tone} ${className}`}
+      className={`inline-flex min-h-11 items-center rounded-full border px-4 text-small font-semibold transition-[transform,opacity] duration-150 ease-out active:scale-[.98] ${tone} ${className}`}
       {...props}
     />
   );

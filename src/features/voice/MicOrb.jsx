@@ -36,7 +36,7 @@ export function MicOrb({ status, error, onToggle }) {
           transition={
             listening ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.15 }
           }
-          className={`flex size-[120px] items-center justify-center rounded-full bg-primary text-white transition-shadow duration-200 ${ring}`}
+          className={`flex size-[120px] items-center justify-center rounded-full bg-primary text-white ${ring}`}
         >
           {listening && <Square size={32} fill="currentColor" aria-hidden="true" />}
           {!listening && status === 'error' && <MicOff size={32} aria-hidden="true" />}

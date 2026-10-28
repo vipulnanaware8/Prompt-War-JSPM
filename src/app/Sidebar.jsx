@@ -23,7 +23,7 @@ export function Sidebar({ section, onNavigate }) {
                   type="button"
                   onClick={() => onNavigate(id)}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-body font-medium transition duration-150 ease-out ${
+                  className={`flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-body font-medium transition-[transform,opacity] duration-150 ease-out ${
                     active
                       ? 'bg-primary-soft text-primary-strong'
                       : 'text-muted hover:bg-bg hover:text-ink'

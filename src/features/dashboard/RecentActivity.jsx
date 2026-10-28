@@ -4,13 +4,17 @@ import { INTENT_STYLE } from '../../components/ui/Badge.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
 import { TimeAgo } from '../../components/ui/TimeAgo.jsx';
-import { formatQty, formatRupees } from '../../lib/format.js';
+import { dayKey, formatQty, formatRupees } from '../../lib/format.js';
 import { selectRecentTransactions } from '../../store/selectors.js';
 import { useShop, useStrings } from '../../store/ShopContext.jsx';
 
 export function RecentActivity() {
   const t = useStrings();
   const recent = useShop(selectRecentTransactions);
+  // SRS 7.7: "No entries today" gets its own empty state, even when older entries exist.
+  const todayCount = useShop(
+    (s) => s.transactions.filter((tx) => dayKey(tx.ts) === dayKey(new Date())).length,
+  );
   const items = useShop((s) => s.items);
   const customers = useShop((s) => s.customers);
 
@@ -29,7 +33,7 @@ export function RecentActivity() {
 
   return (
     <Card title={t.recentTitle}>
-      {recent.length === 0 ? (
+      {todayCount === 0 ? (
         <EmptyState icon={Inbox} title={t.emptyToday} hint={t.emptyTodayHint} />
       ) : (
         <ul className="flex flex-col divide-y divide-border">
