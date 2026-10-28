@@ -50,7 +50,7 @@ export function StatGrid({ onNavigate }) {
         label={t.stats.lowStock}
         value={lowStock}
         delta={t.stats.lowStockDelta(lowStock)}
-        onClick={() => onNavigate('stock')}
+        onClick={() => onNavigate('stock', { filter: 'low' })}
       />
     </div>
   );

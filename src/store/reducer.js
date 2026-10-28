@@ -4,7 +4,7 @@ import { applyTransaction, undoLast } from '../lib/ledger.js';
 
 /**
  * @param {import('../data/seed.js').ShopState} state
- * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'UPDATE_SETTINGS', payload: any }} action
+ * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'UPDATE_SETTINGS'|'RESET', payload: any }} action
  */
 export function shopReducer(state, action) {
   switch (action.type) {
@@ -14,6 +14,8 @@ export function shopReducer(state, action) {
       return undoLast(state, action.payload);
     case 'ADD_CUSTOMER':
       return { ...state, customers: [...state.customers, action.payload] };
+    case 'RESET':
+      return action.payload; // a fresh seed state, built by the caller
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.payload } };
     default:

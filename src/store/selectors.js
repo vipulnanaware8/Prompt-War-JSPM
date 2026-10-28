@@ -2,6 +2,8 @@
 
 import { dayKey, startOfDay } from '../lib/format.js';
 import { computeBalances, todayTotals } from '../lib/ledger.js';
+import { daysUntilEmpty } from '../lib/forecast.js';
+import { normalize } from '../lib/parser/normalize.js';
 
 const SALE_TYPES = ['credit_sale', 'cash_sale'];
 
@@ -73,4 +75,28 @@ export function selectDailySales(state, now = new Date(), days = 7) {
 /** Newest transactions first (FR-DASH-6). */
 export function selectRecentTransactions(state, count = 5) {
   return [...state.transactions].sort((a, b) => (a.ts < b.ts ? 1 : -1)).slice(0, count);
+}
+
+/** Customers whose name or any alias (Latin or Devanagari) contains the search text. */
+export function selectCustomersMatching(state, query) {
+  const needle = normalize(query);
+  const all = selectCustomersByBalance(state);
+  if (!needle) return all;
+  return all.filter((c) => [c.name, ...c.aliases].some((name) => normalize(name).includes(needle)));
+}
+
+/** Items with "runs out in N days" (null when there were no sales) — FR-STOCK-3. */
+export function selectItemsWithForecast(state, now = new Date()) {
+  return state.items.map((item) => ({
+    ...item,
+    daysLeft: daysUntilEmpty(item, state.transactions, now),
+  }));
+}
+
+/** A customer's latest transactions, newest first (FR-KHATA-2). */
+export function selectCustomerTransactions(state, customerId, count = 10) {
+  return state.transactions
+    .filter((tx) => tx.customerId === customerId)
+    .sort((a, b) => (a.ts < b.ts ? 1 : -1))
+    .slice(0, count);
 }

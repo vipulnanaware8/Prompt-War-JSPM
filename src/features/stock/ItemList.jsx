@@ -1,4 +1,4 @@
-// Item rows: name, price/unit, stock + unit, stock bar (FR-STOCK-1, FR-STOCK-2).
+// Item rows: name, price/unit, stock + unit, stock bar, "runs out in N days" (FR-STOCK-1/2/3).
 import { formatQty, formatRupees } from '../../lib/format.js';
 import { useStrings } from '../../store/ShopContext.jsx';
 import { StockBar } from './StockBar.jsx';
@@ -21,6 +21,13 @@ export function ItemList({ items }) {
             </p>
           </div>
           <StockBar stock={item.stock} reorderLevel={item.reorderLevel} />
+          <p
+            className={`text-caption font-medium tabular-nums ${item.daysLeft !== null && item.daysLeft <= 3 ? 'text-danger' : 'text-muted'}`}
+          >
+            {item.daysLeft === null
+              ? t.stockScreen.runsOutUnknown
+              : t.stockScreen.runsOut(item.daysLeft)}
+          </p>
         </li>
       ))}
     </ul>

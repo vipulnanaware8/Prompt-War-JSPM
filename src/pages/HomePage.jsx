@@ -11,7 +11,7 @@ function timeOfDay(hour) {
   return 'evening';
 }
 
-export function HomePage({ onNavigate }) {
+export function HomePage({ onNavigate, onOpenCustomer }) {
   const t = useStrings();
   const shopName = useShop((s) => s.settings.shopName);
 
@@ -25,7 +25,7 @@ export function HomePage({ onNavigate }) {
       </div>
       <StatGrid onNavigate={onNavigate} />
       <SalesChart />
-      <TopDebtors />
+      <TopDebtors onOpen={onOpenCustomer} />
       <RecentActivity />
     </div>
   );

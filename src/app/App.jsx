@@ -10,6 +10,7 @@ import { Sheet } from '../components/ui/Sheet.jsx';
 import { VoicePanel } from '../features/voice/VoicePanel.jsx';
 import { ConfirmationSheet } from '../features/commands/ConfirmationSheet.jsx';
 import { useCommandFlow } from '../features/commands/useCommandFlow.js';
+import { CustomerSheet } from '../features/khata/CustomerSheet.jsx';
 import { HomePage } from '../pages/HomePage.jsx';
 import { KhataPage } from '../pages/KhataPage.jsx';
 import { StockPage } from '../pages/StockPage.jsx';
@@ -21,12 +22,25 @@ const TYPING_TAGS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'];
 
 export function App() {
   const [section, setSection] = useState('home');
+  const [params, setParams] = useState(null); // e.g. { filter: 'low' } for Stock
+  const [customerSheet, setCustomerSheet] = useState({ id: null, open: false });
   const storageAvailable = useStorageAvailable();
   const t = useStrings();
   const flow = useCommandFlow();
   const Page = PAGES[section];
   const { toggle: toggleMic } = flow.mic;
   const cardOpen = flow.draft !== null;
+
+  function navigate(id, options = null) {
+    setParams(options);
+    setSection(id);
+  }
+
+  // Customer sheet opens from Khata, the dashboard and answers (FR-KHATA-2).
+  function openCustomer(id) {
+    if (flow.voiceOpen) flow.closeVoice();
+    setCustomerSheet({ id, open: true });
+  }
 
   // Space toggles the mic when focus is not in a control (NFR-8).
   useEffect(() => {
@@ -41,7 +55,7 @@ export function App() {
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[240px_minmax(0,1fr)_380px]">
-      <Sidebar section={section} onNavigate={setSection} />
+      <Sidebar section={section} onNavigate={navigate} />
 
       <div className="min-w-0">
         {!storageAvailable && (
@@ -62,7 +76,7 @@ export function App() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               >
-                <Page onNavigate={setSection} />
+                <Page onNavigate={navigate} onOpenCustomer={openCustomer} params={params} />
               </motion.div>
             </AnimatePresence>
           </main>
@@ -74,16 +88,21 @@ export function App() {
         aria-label={t.voice.panel}
         className="sticky top-0 hidden h-dvh overflow-y-auto bg-ink text-panel-text lg:block"
       >
-        <VoicePanel flow={flow} />
+        <VoicePanel flow={flow} onOpenCustomer={openCustomer} />
       </aside>
 
       {/* Mobile: the same panel as a full-height sheet from the mic button */}
       <Sheet open={flow.voiceOpen} onClose={flow.closeVoice} label={t.voice.panel} dark full>
-        <VoicePanel flow={flow} />
+        <VoicePanel flow={flow} onOpenCustomer={openCustomer} />
       </Sheet>
 
       <ConfirmationSheet flow={flow} />
-      <TabBar section={section} onNavigate={setSection} onMic={flow.openVoice} />
+      <CustomerSheet
+        customerId={customerSheet.id}
+        open={customerSheet.open}
+        onClose={() => setCustomerSheet((s) => ({ ...s, open: false }))}
+      />
+      <TabBar section={section} onNavigate={navigate} onMic={flow.openVoice} />
     </div>
   );
 }

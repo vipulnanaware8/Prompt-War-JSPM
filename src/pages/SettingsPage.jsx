@@ -1,8 +1,8 @@
-// Settings — shop name, voice language, mute (FR-SET-1/2/3).
-import { useState } from 'react';
-import { Button } from '../components/ui/Button.jsx';
+// Settings — Shop, Voice, Data, About (SRS 7.5).
 import { Card } from '../components/ui/Card.jsx';
-import { useToast } from '../components/ui/Toast.jsx';
+import { AboutCard } from '../features/settings/AboutCard.jsx';
+import { DataCard } from '../features/settings/DataCard.jsx';
+import { ShopNameForm } from '../features/settings/ShopNameForm.jsx';
 import { LanguageSwitch } from '../features/voice/LanguageSwitch.jsx';
 import { useShop, useShopDispatch, useStrings } from '../store/ShopContext.jsx';
 
@@ -10,35 +10,14 @@ export function SettingsPage() {
   const t = useStrings();
   const { shopName, muted } = useShop((s) => s.settings);
   const dispatch = useShopDispatch();
-  const { showToast } = useToast();
-  const [name, setName] = useState(shopName);
-  const trimmed = name.trim();
-
-  function saveName(event) {
-    event.preventDefault();
-    dispatch({ type: 'UPDATE_SETTINGS', payload: { shopName: trimmed } });
-    showToast({ type: 'success', message: t.saved });
-  }
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="py-2 text-h1 font-bold">{t.settingsTitle}</h1>
 
       <Card title={t.shopCard}>
-        <form onSubmit={saveName} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="flex flex-1 flex-col gap-1 text-small font-medium text-muted">
-            {t.shopNameLabel}
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={40}
-              className="min-h-11 rounded-md border border-border bg-surface px-3 text-body text-ink"
-            />
-          </label>
-          <Button type="submit" disabled={!trimmed || trimmed === shopName}>
-            {t.save}
-          </Button>
-        </form>
+        {/* key: after "Reset demo data" the form starts again from the seed name */}
+        <ShopNameForm key={shopName} shopName={shopName} />
       </Card>
 
       <Card title={t.voiceCard}>
@@ -63,6 +42,9 @@ export function SettingsPage() {
           </label>
         </div>
       </Card>
+
+      <DataCard />
+      <AboutCard />
     </div>
   );
 }

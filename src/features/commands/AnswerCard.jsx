@@ -1,5 +1,5 @@
 // Answers to spoken questions, and the "not understood" message with suggestions (SRS 7.5, 7.7).
-import { MessageCircleQuestion, Volume2 } from 'lucide-react';
+import { BookOpenText, MessageCircleQuestion, Volume2 } from 'lucide-react';
 import { IconButton } from '../../components/ui/IconButton.jsx';
 import { useStrings } from '../../store/ShopContext.jsx';
 
@@ -20,7 +20,7 @@ function SuggestionChips({ phrases, onPick }) {
   );
 }
 
-export function AnswerCard({ answer, onReplay, onPick }) {
+export function AnswerCard({ answer, onReplay, onPick, onOpenCustomer }) {
   const t = useStrings();
   if (!answer) return null;
 
@@ -47,6 +47,16 @@ export function AnswerCard({ answer, onReplay, onPick }) {
       {answer.value && <p className="text-display font-bold tabular-nums">{answer.value}</p>}
       <p className="text-body">{answer.sentence}</p>
       {answer.examples && <SuggestionChips phrases={answer.examples} onPick={onPick} />}
+      {answer.customerId && (
+        <button
+          type="button"
+          onClick={() => onOpenCustomer(answer.customerId)}
+          className="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 text-small font-semibold text-primary-strong hover:underline"
+        >
+          <BookOpenText size={20} aria-hidden="true" />
+          {t.khata.open}
+        </button>
+      )}
     </section>
   );
 }

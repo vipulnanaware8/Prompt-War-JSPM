@@ -62,3 +62,19 @@ export function relativeTime(iso, now = new Date()) {
   if (days >= 1) return { key: 'days', n: days };
   return { key: 'hours', n: Math.floor(minutes / 60) };
 }
+
+const DEVANAGARI = /[ऀ-ॿ]/;
+
+/**
+ * Name to show or speak in a language: the Devanagari alias for Hindi/Marathi
+ * (reads naturally), otherwise the first name. "Ramesh Patil" → "Ramesh" / "रमेश".
+ * @param {{ name: string, aliases: string[] }} customer
+ * @param {'hinglish'|'hi'|'mr'} language
+ * @returns {string}
+ */
+export function displayName(customer, language) {
+  if (!customer) return '';
+  const native = customer.aliases.find((a) => DEVANAGARI.test(a));
+  if (language !== 'hinglish' && native) return native;
+  return customer.name.split(' ')[0];
+}

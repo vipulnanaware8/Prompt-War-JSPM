@@ -1,17 +1,10 @@
 // Turn ledger results and query answers into sentences in the selected language (SRS 7.8).
 // Speech uses digits ("340 rupaye"), never the ₹ symbol, so voices read them correctly.
 
-import { formatQty, formatRupees } from '../../lib/format.js';
+import { displayName, formatQty, formatRupees } from '../../lib/format.js';
 
-const DEVANAGARI = /[ऀ-ॿ]/;
-
-/** Name to speak: Devanagari alias for Hindi/Marathi (reads naturally), else the first name. */
-export function spokenName(customer, language) {
-  if (!customer) return '';
-  const native = customer.aliases.find((a) => DEVANAGARI.test(a));
-  if (language !== 'hinglish' && native) return native;
-  return customer.name.split(' ')[0];
-}
+/** Name to speak: Devanagari alias for Hindi/Marathi, else the first name. */
+export const spokenName = displayName;
 
 /**
  * Sentence spoken and shown after Confirm.

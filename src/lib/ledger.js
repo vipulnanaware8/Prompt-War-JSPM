@@ -159,3 +159,25 @@ export function todayTotals(transactions, now = new Date()) {
   }
   return totals;
 }
+
+/**
+ * New customer record (FR-KHATA-4). Only a name and an optional second name — never a
+ * phone, address or ID. Aliases let the parser recognise them in commands immediately.
+ * @param {{ name: string, alias?: string }} input
+ * @param {{ id: string, now?: Date }} meta
+ */
+export function buildCustomer({ name, alias = '' }, { id, now = new Date() }) {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  const aliases = [
+    clean.toLowerCase(),
+    clean.split(' ')[0].toLowerCase(),
+    alias.trim().toLowerCase(),
+  ];
+  return {
+    id,
+    name: clean,
+    aliases: [...new Set(aliases.filter(Boolean))],
+    openingBalance: 0,
+    createdAt: now.toISOString(),
+  };
+}

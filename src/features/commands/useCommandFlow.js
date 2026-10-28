@@ -4,7 +4,12 @@
 import { useCallback, useState } from 'react';
 import { parseCommand } from '../../lib/parser/index.js';
 import { answerQuery } from '../../lib/queries.js';
-import { balanceAfter, buildTransaction, computeBalances } from '../../lib/ledger.js';
+import {
+  balanceAfter,
+  buildCustomer,
+  buildTransaction,
+  computeBalances,
+} from '../../lib/ledger.js';
 import { SPEECH_LANG } from '../../i18n/strings.js';
 import { useShop, useShopDispatch, useStrings } from '../../store/ShopContext.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
@@ -50,8 +55,10 @@ export function useCommandFlow() {
       cancelSpeech();
       const result = parseCommand(input, state);
       if (result.intent === 'query') {
-        const view = answerView(t, answerQuery(result.query, state));
-        setAnswer({ kind: 'answer', ...view });
+        const data = answerQuery(result.query, state);
+        const view = answerView(t, data);
+        // customerId lets the answer card open that customer's khata
+        setAnswer({ kind: 'answer', ...view, customerId: data.customerId ?? null });
         say(view.sentence);
       } else if (result.intent === 'unknown') {
         setAnswer({ kind: 'unknown', suggestions: result.suggestions });
@@ -112,13 +119,7 @@ export function useCommandFlow() {
   /** Add the unknown name from the command as a new customer and select it. */
   const addCustomer = useCallback(
     (name) => {
-      const customer = {
-        id: `c_${Date.now().toString(36)}`,
-        name,
-        aliases: [name.toLowerCase()],
-        openingBalance: 0,
-        createdAt: new Date().toISOString(),
-      };
+      const customer = buildCustomer({ name }, { id: `c_${Date.now().toString(36)}` });
       dispatch({ type: 'ADD_CUSTOMER', payload: customer });
       setDraft((d) => ({
         ...d,

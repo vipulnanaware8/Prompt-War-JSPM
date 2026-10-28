@@ -7,7 +7,7 @@ import { DemoChips } from './DemoChips.jsx';
 import { LanguageSwitch } from './LanguageSwitch.jsx';
 import { MicOrb } from './MicOrb.jsx';
 
-export function VoicePanel({ flow }) {
+export function VoicePanel({ flow, onOpenCustomer }) {
   const t = useStrings();
   const { mic } = flow;
   const { final, interim } = mic.transcript;
@@ -27,7 +27,12 @@ export function VoicePanel({ flow }) {
       )}
 
       <CommandBar value={flow.text} onChange={flow.setText} onSubmit={flow.submit} />
-      <AnswerCard answer={flow.answer} onReplay={flow.replay} onPick={flow.run} />
+      <AnswerCard
+        answer={flow.answer}
+        onReplay={flow.replay}
+        onPick={flow.run}
+        onOpenCustomer={onOpenCustomer}
+      />
       <DemoChips onPick={flow.run} />
       {mic.status === 'idle' && (
         <p className="text-caption font-medium text-panel-muted">{t.voice.hint}</p>
