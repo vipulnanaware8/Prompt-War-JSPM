@@ -122,6 +122,46 @@ export const QUERY_WORDS = {
   runningOut: ['khatam', 'खत्म', 'संपणार'],
 };
 
+/** "Will pay" words for a promise: "Ramesh Sunday ko dega". */
+export const PROMISE_WORDS = [
+  'dega',
+  'degi',
+  'denge',
+  'देगा',
+  'देगी',
+  'देंगे',
+  'देईल',
+  'देणार',
+  'देतील',
+];
+
+/** "Today's account" words for the end-of-day summary. */
+export const SUMMARY_WORDS = ['hisaab', 'hisab', 'summary', 'हिसाब', 'हिशोब', 'हिशेब'];
+
+/** When a promise is due: a day offset or a weekday (0 = Sunday). */
+export const DAY_WORDS = {
+  aaj: { days: 0 },
+  आज: { days: 0 },
+  kal: { days: 1 },
+  कल: { days: 1 },
+  udya: { days: 1 },
+  उद्या: { days: 1 },
+  parso: { days: 2 },
+  परसों: { days: 2 },
+  परवा: { days: 2 },
+  ...Object.fromEntries(
+    [
+      ['sunday', 'ravivar', 'itwar', 'रविवार', 'इतवार', 'रविवारी'],
+      ['monday', 'somvar', 'सोमवार', 'सोमवारी'],
+      ['tuesday', 'mangalvar', 'मंगलवार', 'मंगळवारी', 'मंगळवार'],
+      ['wednesday', 'budhvar', 'बुधवार', 'बुधवारी'],
+      ['thursday', 'guruvar', 'गुरुवार', 'गुरुवारी'],
+      ['friday', 'shukravar', 'शुक्रवार', 'शुक्रवारी'],
+      ['saturday', 'shanivar', 'शनिवार', 'शनिवारी'],
+    ].flatMap((words, weekday) => words.map((w) => [w, { weekday }])),
+  ),
+};
+
 /** Unit words → unit id (SRS 9.5). */
 export const UNIT_WORDS = {
   kg: 'kg',
@@ -250,6 +290,9 @@ export const NAME_MARKERS = ['ne', 'ko', 'ka', 'ki', 'ke', 'ने', 'को', '
 export const KNOWN_WORDS = new Set([
   ...Object.values(INTENT_KEYWORDS).flat(),
   ...Object.values(QUERY_WORDS).flat(),
+  ...PROMISE_WORDS,
+  ...SUMMARY_WORDS,
+  ...Object.keys(DAY_WORDS),
   ...Object.keys(UNIT_WORDS),
   ...JOINERS,
   ...FILLER_WORDS,

@@ -10,6 +10,7 @@ import {
   buildTransaction,
   computeBalances,
 } from '../../lib/ledger.js';
+import { buildPromise, daysUntil } from '../../lib/promises.js';
 import { SPEECH_LANG } from '../../i18n/strings.js';
 import { useShop, useShopDispatch, useStrings } from '../../store/ShopContext.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
@@ -49,7 +50,7 @@ export function useCommandFlow() {
     [muted, speak, language],
   );
 
-  /** Parse a command and show the card, an answer, or "not understood". */
+  /** Parse a command and show the card, an answer, or "not understood". Returns the intent. */
   const submit = useCallback(
     (input) => {
       cancelSpeech();
@@ -60,6 +61,33 @@ export function useCommandFlow() {
         // customerId lets the answer card open that customer's khata
         setAnswer({ kind: 'answer', ...view, customerId: data.customerId ?? null });
         say(view.sentence);
+      } else if (result.intent === 'promise') {
+        // Not money, so no confirmation card: save now, speak back, offer Undo.
+        const promise = buildPromise(
+          { customerId: result.customer.id, when: result.promiseDay, amount: result.amount },
+          { id: `p_${Date.now().toString(36)}` },
+        );
+        const customer = state.customers.find((c) => c.id === promise.customerId);
+        const [y, m, d] = promise.due.split('-').map(Number);
+        const when = t.promise.when(daysUntil(promise.due), new Date(y, m - 1, d).getDay());
+        const sentence = t.promise.saved(spokenName(customer, language), when);
+        dispatch({ type: 'ADD_PROMISE', payload: promise });
+        setAnswer(null);
+        setVoiceOpen(false);
+        say(sentence);
+        showToast({
+          type: 'success',
+          message: sentence,
+          duration: 10000,
+          action: {
+            label: t.toast.undo,
+            onClick: () => {
+              dispatch({ type: 'REMOVE_PROMISE', payload: promise.id });
+              cancelSpeech();
+              setTimeout(() => showToast({ type: 'warning', message: t.promise.removed }), 0);
+            },
+          },
+        });
       } else if (result.intent === 'unknown') {
         setAnswer({ kind: 'unknown', suggestions: result.suggestions });
       } else {
@@ -67,8 +95,9 @@ export function useCommandFlow() {
         setVoiceOpen(false);
         setDraft(toDraft(result));
       }
+      return result.intent;
     },
-    [cancelSpeech, state, t, say],
+    [cancelSpeech, state, t, say, language, dispatch, showToast],
   );
 
   const mic = useSpeechRecognition({
@@ -100,6 +129,7 @@ export function useCommandFlow() {
     });
     dispatch({ type: 'CONFIRM_TX', payload: tx });
     setDraft(null);
+    setText(''); // ready for the next entry
     say(sentence);
     showToast({
       type: 'success',
@@ -137,6 +167,9 @@ export function useCommandFlow() {
     mic.start();
   }, [mic]);
 
+  /** Open the voice sheet without listening, e.g. to show an answer to a typed question. */
+  const showVoice = useCallback(() => setVoiceOpen(true), []);
+
   const closeVoice = useCallback(() => {
     mic.stop();
     setVoiceOpen(false);
@@ -157,6 +190,7 @@ export function useCommandFlow() {
     replay: () => answer?.sentence && say(answer.sentence),
     voiceOpen,
     openVoice,
+    showVoice,
     closeVoice,
   };
 }

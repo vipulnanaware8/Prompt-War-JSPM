@@ -7,6 +7,7 @@ import { Header } from './Header.jsx';
 import { Sidebar } from './Sidebar.jsx';
 import { TabBar } from './TabBar.jsx';
 import { Sheet } from '../components/ui/Sheet.jsx';
+import { QuickBar } from '../features/voice/QuickBar.jsx';
 import { VoicePanel } from '../features/voice/VoicePanel.jsx';
 import { ConfirmationSheet } from '../features/commands/ConfirmationSheet.jsx';
 import { useCommandFlow } from '../features/commands/useCommandFlow.js';
@@ -70,7 +71,7 @@ export function App() {
             {t.storageBanner}
           </p>
         )}
-        <div className="mx-auto max-w-[720px] px-4 pb-[calc(112px+env(safe-area-inset-bottom))] sm:px-6 lg:max-w-[760px] lg:px-8 lg:pb-12">
+        <div className="mx-auto max-w-[720px] px-4 pb-[calc(152px+env(safe-area-inset-bottom))] sm:px-6 lg:max-w-[760px] lg:px-8 lg:pb-12">
           <Header />
           <main>
             {/* 200 ms fade/slide between sections (FR-NAV-5); only fades under reduced motion */}
@@ -97,7 +98,7 @@ export function App() {
         <VoicePanel flow={flow} onOpenCustomer={openCustomer} />
       </aside>
 
-      {/* Mobile: the same panel as a full-height sheet from the mic button */}
+      {/* Mobile: the same panel as a full-height sheet from the quick bar */}
       <Sheet open={flow.voiceOpen} onClose={flow.closeVoice} label={t.voice.panel} dark full>
         <VoicePanel flow={flow} onOpenCustomer={openCustomer} />
       </Sheet>
@@ -108,7 +109,9 @@ export function App() {
         open={customerSheet.open}
         onClose={() => setCustomerSheet((s) => ({ ...s, open: false }))}
       />
-      <TabBar section={section} onNavigate={navigate} onMic={flow.openVoice} />
+      <TabBar section={section} onNavigate={navigate}>
+        <QuickBar flow={flow} />
+      </TabBar>
     </div>
   );
 }

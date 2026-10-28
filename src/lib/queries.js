@@ -2,6 +2,7 @@
 
 import { computeBalances, todayTotals } from './ledger.js';
 import { runningOut } from './forecast.js';
+import { duePromises } from './promises.js';
 
 /**
  * @param {{ type: string, itemId?: string, customerId?: string } | null} query from parseCommand
@@ -25,6 +26,18 @@ export function answerQuery(query, state, now = new Date()) {
     case 'today_sales': {
       const { sales, salesCount } = todayTotals(state.transactions, now);
       return { type: 'today_sales', total: sales, count: salesCount };
+    }
+    case 'day_summary': {
+      const totals = todayTotals(state.transactions, now);
+      return {
+        type: 'day_summary',
+        total: totals.sales,
+        count: totals.salesCount,
+        credit: totals.credit,
+        collected: totals.collected,
+        promises: duePromises(state, now).length,
+        runningOut: runningOut(state.items, state.transactions, now).length,
+      };
     }
     case 'item_stock': {
       const found = item(query.itemId);

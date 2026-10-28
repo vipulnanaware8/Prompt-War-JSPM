@@ -58,6 +58,8 @@ export function answerView(t, answer) {
       if (balance < 0) sentence = a.balanceAdvance(name, -balance);
       return { value: formatRupees(Math.abs(balance)), sentence };
     }
+    case 'day_summary':
+      return { value: formatRupees(answer.total), sentence: t.summary(answer) };
     case 'running_out':
       if (answer.items.length === 0) return { value: null, sentence: a.running_none };
       return {

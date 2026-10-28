@@ -1,6 +1,6 @@
 // Toast system (FR-SYS-5): success / warning / error, one at a time, auto-dismiss after 4 s.
 // An optional action (Undo) gets a progress bar showing the time left (SRS 7.4).
-// Sits bottom-centre, above the mobile tab bar.
+// Sits bottom-centre, above the mobile quick bar and tab bar.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -37,7 +37,7 @@ export function ToastProvider({ children }) {
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(80px+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 lg:bottom-6"
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(144px+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 lg:bottom-6"
       >
         <AnimatePresence>
           {toast && (

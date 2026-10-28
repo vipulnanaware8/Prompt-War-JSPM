@@ -2,10 +2,15 @@
 
 import { dayKey, startOfDay } from '../lib/format.js';
 import { computeBalances, todayTotals } from '../lib/ledger.js';
-import { daysUntilEmpty } from '../lib/forecast.js';
+import { daysUntilEmpty, runningOut } from '../lib/forecast.js';
 import { normalize } from '../lib/parser/normalize.js';
+import { duePromises } from '../lib/promises.js';
 
 const SALE_TYPES = ['credit_sale', 'cash_sale'];
+const DAY = 86400000;
+// Udhaar of at least this much, with no payment for this many days, becomes a to-do.
+const COLLECT_MIN = 100;
+const COLLECT_AFTER_DAYS = 3;
 
 /**
  * Balance of every customer: openingBalance + credit sales − payments.
@@ -48,6 +53,64 @@ export function selectUdhaarPending(state) {
 /** Today's sales and cash, matching SRS 8.1. */
 export function selectTodayTotals(state, now = new Date()) {
   return todayTotals(state.transactions, now);
+}
+
+/**
+ * Sales from yesterday's midnight up to this time yesterday, so a half-finished
+ * day is compared with the same part of yesterday.
+ */
+export function selectYesterdaySalesSoFar(state, now = new Date()) {
+  const from = startOfDay(now).getTime() - DAY;
+  const to = now.getTime() - DAY;
+  let total = 0;
+  for (const tx of state.transactions) {
+    const ts = new Date(tx.ts).getTime();
+    if (ts >= from && ts <= to && SALE_TYPES.includes(tx.type)) total += tx.amount;
+  }
+  return total;
+}
+
+/**
+ * "What to do now" on the dashboard: items running out (soonest first), then udhaar
+ * not paid for a while (biggest first). Each kind gets at least half of `count`
+ * when it has that many; the other kind fills any leftover places.
+ * @returns {Array<{ kind: 'restock', item: object, days: number }
+ *   | { kind: 'collect', customer: object, days: number }>}
+ */
+export function selectTodos(state, now = new Date(), count = 4) {
+  const restock = runningOut(state.items, state.transactions, now).map(({ itemId, days }) => ({
+    kind: 'restock',
+    item: state.items.find((i) => i.id === itemId),
+    days,
+  }));
+
+  const lastPaid = {};
+  for (const tx of state.transactions) {
+    if (tx.type === 'payment' && (!lastPaid[tx.customerId] || tx.ts > lastPaid[tx.customerId])) {
+      lastPaid[tx.customerId] = tx.ts;
+    }
+  }
+  const today = startOfDay(now).getTime();
+  const collect = selectCustomersByBalance(state)
+    .filter((c) => c.balance >= COLLECT_MIN)
+    .map((c) => ({
+      kind: 'collect',
+      customer: c,
+      days: Math.round((today - startOfDay(lastPaid[c.id] ?? c.createdAt).getTime()) / DAY),
+    }))
+    .filter((todo) => todo.days >= COLLECT_AFTER_DAYS);
+
+  // Promises due today come first; those customers are not repeated as "collect".
+  const promised = duePromises(state, now).map((row) => ({ kind: 'promise', ...row }));
+  const promisedIds = new Set(promised.map((row) => row.customer.id));
+  const others = collect.filter((todo) => !promisedIds.has(todo.customer.id));
+
+  const half = Math.ceil(count / 2);
+  return [
+    ...promised,
+    ...restock.slice(0, Math.max(half, count - others.length - promised.length)),
+    ...others,
+  ].slice(0, Math.max(count, promised.length));
 }
 
 /** Items at or below their reorder level (FR-STOCK-2). */

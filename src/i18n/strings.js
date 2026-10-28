@@ -9,7 +9,6 @@ const hinglish = {
   mainNav: 'Main menu',
   muteOn: 'Awaaz band hai — chalu karein',
   muteOff: 'Awaaz chalu hai — band karein',
-  greeting: (shop) => `Namaste, ${shop}`,
   timeOfDay: { morning: 'Shubh prabhat', afternoon: 'Shubh dopahar', evening: 'Shubh sandhya' },
   greetingSub: 'Aaj ka hisaab ek nazar mein',
   stats: {
@@ -21,6 +20,20 @@ const hinglish = {
     udhaarDelta: (n) => `${n} grahak`,
     cashDelta: 'Bikri + jama',
     lowStockDelta: (n) => (n > 0 ? 'Order kariye' : 'Sab theek hai'),
+    yesterdaySoFar: (amount) => `Kal is samay tak ${amount}`,
+    trend: { up: (p) => `Kal se ${p}% zyada`, down: (p) => `Kal se ${p}% kam`, same: 'Kal jitni' },
+  },
+  todos: {
+    title: 'Abhi kya karna hai',
+    restock: (item, days) =>
+      days === 0 ? `${item} khatam ho gaya` : `${item} ${days} din mein khatam hoga`,
+    restockHint: (qty) => `Stock: ${qty}`,
+    restockAction: 'Stock dekhiye',
+    collect: (name) => `${name} se udhaar lena hai`,
+    collectHint: (amount, days) => `${amount} · ${days} din se koi jama nahi`,
+    collectAction: 'Yaad dilaiye',
+    allDone: 'Aaj ke liye sab theek hai',
+    allDoneHint: 'Stock ya udhaar ka koi kaam baaki nahi',
   },
   chartTitle: 'Pichhle 7 din ki bikri',
   chartToday: 'Aaj',
@@ -73,7 +86,6 @@ const hi = {
   mainNav: 'मुख्य मेनू',
   muteOn: 'आवाज़ बंद है — चालू करें',
   muteOff: 'आवाज़ चालू है — बंद करें',
-  greeting: (shop) => `नमस्ते, ${shop}`,
   timeOfDay: { morning: 'शुभ प्रभात', afternoon: 'शुभ दोपहर', evening: 'शुभ संध्या' },
   greetingSub: 'आज का हिसाब एक नज़र में',
   stats: {
@@ -85,6 +97,20 @@ const hi = {
     udhaarDelta: (n) => `${n} ग्राहक`,
     cashDelta: 'बिक्री + जमा',
     lowStockDelta: (n) => (n > 0 ? 'ऑर्डर करें' : 'सब ठीक है'),
+    yesterdaySoFar: (amount) => `कल इस समय तक ${amount}`,
+    trend: { up: (p) => `कल से ${p}% ज़्यादा`, down: (p) => `कल से ${p}% कम`, same: 'कल जितनी' },
+  },
+  todos: {
+    title: 'अभी क्या करना है',
+    restock: (item, days) =>
+      days === 0 ? `${item} खत्म हो गया` : `${item} ${days} दिन में खत्म होगा`,
+    restockHint: (qty) => `स्टॉक: ${qty}`,
+    restockAction: 'स्टॉक देखें',
+    collect: (name) => `${name} से उधार लेना है`,
+    collectHint: (amount, days) => `${amount} · ${days} दिन से कोई जमा नहीं`,
+    collectAction: 'याद दिलाएँ',
+    allDone: 'आज के लिए सब ठीक है',
+    allDoneHint: 'स्टॉक या उधार का कोई काम बाकी नहीं',
   },
   chartTitle: 'पिछले 7 दिन की बिक्री',
   chartToday: 'आज',
@@ -133,7 +159,6 @@ const mr = {
   mainNav: 'मुख्य मेनू',
   muteOn: 'आवाज बंद आहे — चालू करा',
   muteOff: 'आवाज चालू आहे — बंद करा',
-  greeting: (shop) => `नमस्कार, ${shop}`,
   timeOfDay: { morning: 'सुप्रभात', afternoon: 'शुभ दुपार', evening: 'शुभ संध्याकाळ' },
   greetingSub: 'आजचा हिशोब एका नजरेत',
   stats: {
@@ -145,6 +170,23 @@ const mr = {
     udhaarDelta: (n) => `${n} ग्राहक`,
     cashDelta: 'विक्री + जमा',
     lowStockDelta: (n) => (n > 0 ? 'ऑर्डर करा' : 'सगळं ठीक आहे'),
+    yesterdaySoFar: (amount) => `काल याच वेळेपर्यंत ${amount}`,
+    trend: {
+      up: (p) => `कालपेक्षा ${p}% जास्त`,
+      down: (p) => `कालपेक्षा ${p}% कमी`,
+      same: 'कालइतकीच',
+    },
+  },
+  todos: {
+    title: 'आता काय करायचं',
+    restock: (item, days) => (days === 0 ? `${item} संपले` : `${item} ${days} दिवसांत संपेल`),
+    restockHint: (qty) => `स्टॉक: ${qty}`,
+    restockAction: 'स्टॉक पहा',
+    collect: (name) => `${name} यांच्याकडून उधारी घ्यायची आहे`,
+    collectHint: (amount, days) => `${amount} · ${days} दिवसांपासून जमा नाही`,
+    collectAction: 'आठवण करा',
+    allDone: 'आजसाठी सगळं ठीक आहे',
+    allDoneHint: 'स्टॉक किंवा उधारीचे काम बाकी नाही',
   },
   chartTitle: 'मागील 7 दिवसांची विक्री',
   chartToday: 'आज',
@@ -203,6 +245,7 @@ const voiceHinglish = {
     open: 'Bolkar entry kariye',
     panel: 'Awaaz se entry',
     placeholder: 'Ya yahan type kariye…',
+    quickPlaceholder: (phrase) => `Boliye ya likhiye: “${phrase}”`,
     inputLabel: 'Command likhiye',
     send: 'Bhejein',
     tryLabel: 'Try saying:',
@@ -271,6 +314,7 @@ const voiceHinglish = {
       'Maggi kitni bachi hai?',
       'Ramesh ka kitna baaki hai?',
       'Kya khatam hone wala hai?',
+      'Aaj ka hisaab batao',
     ],
     replay: 'Phir se sunein',
     title: 'Jawab',
@@ -294,6 +338,7 @@ const voiceHi = {
     open: 'बोलकर एंट्री करें',
     panel: 'आवाज़ से एंट्री',
     placeholder: 'या यहाँ टाइप करें…',
+    quickPlaceholder: (phrase) => `बोलिए या लिखिए: “${phrase}”`,
     inputLabel: 'कमांड लिखिए',
     send: 'भेजें',
     tryLabel: 'ऐसे बोलिए:',
@@ -377,6 +422,7 @@ const voiceMr = {
     open: 'बोलून नोंद करा',
     panel: 'आवाजाने नोंद',
     placeholder: 'किंवा इथे टाइप करा…',
+    quickPlaceholder: (phrase) => `बोला किंवा लिहा: “${phrase}”`,
     inputLabel: 'कमांड लिहा',
     send: 'पाठवा',
     tryLabel: 'असे बोला:',
@@ -604,10 +650,95 @@ const screensMr = {
   },
 };
 
+// ---- Promises to pay, end-of-day summary, UPI + WhatsApp reminder ----
+
+const extrasHinglish = {
+  promise: {
+    saved: (name, when) => `Theek hai, ${name} ${when} paisa denge. Yaad dila dunga.`,
+    removed: 'Vaada hata diya',
+    when: (days, weekday) => {
+      if (days === 0) return 'aaj';
+      if (days === 1) return 'kal';
+      return `${['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar'][weekday]} ko`;
+    },
+    todo: (name, days) =>
+      days === 0 ? `${name} ne aaj dene ka vaada kiya` : `${name} ka vaada ${-days} din se baaki`,
+    hint: (amount) => `${amount} baaki · vaada`,
+  },
+  summary: ({ total, count, credit, collected, promises, runningOut }) =>
+    [
+      `Aaj ka hisaab: ${count} bikri, kul ${total} rupaye.`,
+      `Udhaar diya ${credit} rupaye, wasooli ${collected} rupaye.`,
+      promises > 0 && `${promises} logon ka paisa aaj aana hai.`,
+      runningOut > 0 && `${runningOut} cheezein jaldi khatam hongi.`,
+    ]
+      .filter(Boolean)
+      .join(' '),
+  upiLabel: 'UPI ID (reminder mein judegi)',
+  upiInvalid: 'UPI ID sahi nahi lagti — jaise sharma@upi',
+  whatsapp: 'WhatsApp par bhejiye',
+};
+
+const extrasHi = {
+  promise: {
+    saved: (name, when) => `ठीक है, ${name} ${when} पैसे देंगे। याद दिला दूँगा।`,
+    removed: 'वादा हटा दिया',
+    when: (days, weekday) => {
+      if (days === 0) return 'आज';
+      if (days === 1) return 'कल';
+      return `${['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'][weekday]} को`;
+    },
+    todo: (name, days) =>
+      days === 0 ? `${name} ने आज देने का वादा किया` : `${name} का वादा ${-days} दिन से बाकी`,
+    hint: (amount) => `${amount} बाकी · वादा`,
+  },
+  summary: ({ total, count, credit, collected, promises, runningOut }) =>
+    [
+      `आज का हिसाब: ${count} बिक्री, कुल ${total} रुपये।`,
+      `उधार दिया ${credit} रुपये, वसूली ${collected} रुपये।`,
+      promises > 0 && `${promises} लोगों का पैसा आज आना है।`,
+      runningOut > 0 && `${runningOut} सामान जल्दी खत्म होंगे।`,
+    ]
+      .filter(Boolean)
+      .join(' '),
+  upiLabel: 'UPI ID (रिमाइंडर में जुड़ेगी)',
+  upiInvalid: 'UPI ID सही नहीं लगती — जैसे sharma@upi',
+  whatsapp: 'WhatsApp पर भेजें',
+};
+
+const extrasMr = {
+  promise: {
+    saved: (name, when) => `ठीक आहे, ${name} ${when} पैसे देणार. आठवण करून देईन.`,
+    removed: 'वचन काढले',
+    when: (days, weekday) => {
+      if (days === 0) return 'आज';
+      if (days === 1) return 'उद्या';
+      return ['रविवारी', 'सोमवारी', 'मंगळवारी', 'बुधवारी', 'गुरुवारी', 'शुक्रवारी', 'शनिवारी'][
+        weekday
+      ];
+    },
+    todo: (name, days) =>
+      days === 0 ? `${name} आज पैसे देणार आहेत` : `${name} यांचे वचन ${-days} दिवसांपासून बाकी`,
+    hint: (amount) => `${amount} बाकी · वचन`,
+  },
+  summary: ({ total, count, credit, collected, promises, runningOut }) =>
+    [
+      `आजचा हिशोब: ${count} विक्री, एकूण ${total} रुपये.`,
+      `उधारी दिली ${credit} रुपये, वसुली ${collected} रुपये.`,
+      promises > 0 && `आज ${promises} जणांकडून पैसे येणार आहेत.`,
+      runningOut > 0 && `${runningOut} वस्तू लवकर संपणार आहेत.`,
+    ]
+      .filter(Boolean)
+      .join(' '),
+  upiLabel: 'UPI ID (आठवणीत जोडली जाईल)',
+  upiInvalid: 'UPI ID बरोबर वाटत नाही — उदा. sharma@upi',
+  whatsapp: 'WhatsApp वर पाठवा',
+};
+
 export const STRINGS = {
-  hinglish: { ...hinglish, ...voiceHinglish, ...screensHinglish },
-  hi: { ...hi, ...voiceHi, ...screensHi },
-  mr: { ...mr, ...voiceMr, ...screensMr },
+  hinglish: { ...hinglish, ...voiceHinglish, ...screensHinglish, ...extrasHinglish },
+  hi: { ...hi, ...voiceHi, ...screensHi, ...extrasHi },
+  mr: { ...mr, ...voiceMr, ...screensMr, ...extrasMr },
 };
 
 /** Speech recognition and speech output language for each app language. */

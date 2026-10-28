@@ -1,6 +1,7 @@
-// Copy a polite reminder in Hinglish / हिंदी / मराठी (FR-KHATA-3). Copied only — nothing is sent.
+// Copy a polite reminder in Hinglish / हिंदी / मराठी (FR-KHATA-3), or open WhatsApp with it.
+// The app itself sends nothing; the owner picks the contact and taps send in WhatsApp.
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, MessageCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Chip } from '../../components/ui/Chip.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
@@ -29,10 +30,10 @@ async function copyText(text) {
 
 export function ReminderButton({ customer }) {
   const t = useStrings();
-  const { shopName, language } = useShop((s) => s.settings);
+  const { shopName, language, upiId } = useShop((s) => s.settings);
   const [lang, setLang] = useState(language);
   const { showToast } = useToast();
-  const message = buildReminder(lang, customer, shopName);
+  const message = buildReminder(lang, customer, shopName, upiId);
 
   async function handleCopy() {
     const ok = await copyText(message);
@@ -53,12 +54,22 @@ export function ReminderButton({ customer }) {
           </Chip>
         ))}
       </div>
-      <p className="rounded-md border border-border bg-surface p-3 text-small text-muted">
+      <p className="whitespace-pre-line break-all rounded-md border border-border bg-surface p-3 text-small text-muted">
         {message}
       </p>
       <Button size="lg" onClick={handleCopy}>
         <Copy size={20} aria-hidden="true" />
         {t.khata.copyReminder}
+      </Button>
+      <Button
+        size="lg"
+        variant="secondary"
+        onClick={() =>
+          window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener')
+        }
+      >
+        <MessageCircle size={20} aria-hidden="true" />
+        {t.whatsapp}
       </Button>
     </section>
   );

@@ -49,7 +49,13 @@ describe('seed data', () => {
     const today = state.transactions.filter((tx) => dayKey(tx.ts) === dayKey(NOW));
     expect(today).toHaveLength(4);
     expect(today.every((tx) => new Date(tx.ts) <= NOW)).toBe(true);
-    expect(selectTodayTotals(state, NOW)).toEqual({ sales: 142, salesCount: 4, cash: 142 });
+    expect(selectTodayTotals(state, NOW)).toEqual({
+      sales: 142,
+      salesCount: 4,
+      cash: 142,
+      credit: 0,
+      collected: 0,
+    });
   });
 
   it('only Maggi (2 days) and Poha (3 days) run out within 3 days', () => {

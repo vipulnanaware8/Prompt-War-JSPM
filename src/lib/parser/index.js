@@ -2,7 +2,7 @@
 // It never throws, never does money maths, and always returns something the card can show.
 
 import { normalize } from './normalize.js';
-import { detectIntent, detectQuery } from './intent.js';
+import { detectIntent, detectPromiseDay, detectQuery } from './intent.js';
 import { extractItems, isReservedWord } from './items.js';
 import { extractCustomer } from './customers.js';
 import { readNumber } from './numbers.js';
@@ -14,16 +14,19 @@ export const DEMO_PHRASES = [
   '10 packet Maggi aaya',
   '3 Maggi cash mein becha',
   'Kiska udhaar sabse zyada hai?',
+  'Mohan Sunday ko dega',
+  'Aaj ka hisaab batao',
 ];
 
 /**
  * @typedef {Object} ParseResult
- * @property {'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'unknown'} intent
+ * @property {'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'promise'|'unknown'} intent
  * @property {{ id: string, matchedText: string, confidence: number } | null} customer
  * @property {string|null} newCustomerName  name-like word that is not a known customer
  * @property {Array<{ itemId: string, qty: number, unit: string, matchedText: string, confidence: number }>} items
  * @property {number|null} amount           only for payment or amount-only credit
  * @property {{ type: string, itemId?: string, customerId?: string } | null} query
+ * @property {{ days: number } | { weekday: number } | null} promiseDay  only for promise
  * @property {string[]} unmatched           words not understood, shown as a hint
  * @property {string} raw                   original text
  * @property {string[]} suggestions         filled when intent is 'unknown'
@@ -57,6 +60,7 @@ function unknownResult(raw, unmatched = []) {
     items: [],
     amount: null,
     query: null,
+    promiseDay: null,
     unmatched,
     raw,
     suggestions: DEMO_PHRASES.slice(0, 3),
@@ -89,14 +93,18 @@ export function parseCommand(text, { items, customers } = {}) {
     });
     if (intent === 'unknown') return unknownResult(raw, unmatched);
 
-    const isMoneyOnly = intent === 'payment' || (intent === 'credit_sale' && lines.length === 0);
+    const isMoneyOnly =
+      intent === 'payment' ||
+      intent === 'promise' ||
+      (intent === 'credit_sale' && lines.length === 0);
     return {
       intent,
       customer,
       newCustomerName: customer ? null : newCustomerName,
-      items: intent === 'payment' ? [] : lines,
+      items: intent === 'payment' || intent === 'promise' ? [] : lines,
       amount: isMoneyOnly ? amount : null,
       query: intent === 'query' ? detectQuery(tokens, { items: lines, customer }) : null,
+      promiseDay: intent === 'promise' ? detectPromiseDay(tokens) : null,
       unmatched,
       raw,
       suggestions: [],

@@ -4,7 +4,7 @@
 
 import { CATALOGUE } from './catalogue.js';
 import { CUSTOMERS } from './customers.js';
-import { startOfDay } from '../lib/format.js';
+import { dayKey, startOfDay } from '../lib/format.js';
 
 export const SCHEMA_VERSION = 1;
 
@@ -13,7 +13,7 @@ export const SCHEMA_VERSION = 1;
  * @typedef {{ id: string, ts: string, type: 'credit_sale'|'cash_sale'|'payment'|'stock_in',
  *   customerId?: string, lines?: TxLine[], amount: number }} Transaction
  * @typedef {{ schemaVersion: number,
- *   settings: { shopName: string, language: 'hinglish'|'hi'|'mr', muted: boolean },
+ *   settings: { shopName: string, language: 'hinglish'|'hi'|'mr', muted: boolean, upiId?: string },
  *   items: object[], customers: object[], transactions: Transaction[] }} ShopState
  */
 
@@ -151,5 +151,15 @@ export function createSeedState(now = new Date()) {
       createdAt: new Date(today - joinedDaysAgo * DAY + 10 * HOUR).toISOString(),
     })),
     transactions,
+    // Sunita promised yesterday to pay today, so the dashboard shows it on first run.
+    promises: [
+      {
+        id: 'p_seed',
+        customerId: 'c2',
+        due: dayKey(now),
+        amount: null,
+        createdAt: new Date(today - DAY + 18 * HOUR).toISOString(),
+      },
+    ],
   };
 }

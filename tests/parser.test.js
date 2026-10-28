@@ -45,8 +45,8 @@ describe('demo phrases (SRS 9.7)', () => {
     expect(r.query).toEqual({ type: 'top_debtor' });
   });
 
-  it('DEMO_PHRASES lists the five phrases in order', () => {
-    expect(DEMO_PHRASES).toHaveLength(5);
+  it('DEMO_PHRASES lists the five SRS phrases first, then promise and summary', () => {
+    expect(DEMO_PHRASES).toHaveLength(7);
     expect(DEMO_PHRASES[0]).toBe('Ramesh ne 2 kilo cheeni aur 1 Parle-G udhaar liya');
   });
 });
@@ -209,6 +209,7 @@ describe('unknown and edge cases', () => {
         'intent',
         'items',
         'newCustomerName',
+        'promiseDay',
         'query',
         'raw',
         'suggestions',

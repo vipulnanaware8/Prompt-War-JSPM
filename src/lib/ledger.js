@@ -148,7 +148,7 @@ export function stockWarnings(intent, lines, items) {
  */
 export function todayTotals(transactions, now = new Date()) {
   const today = dayKey(now);
-  const totals = { sales: 0, salesCount: 0, cash: 0 };
+  const totals = { sales: 0, salesCount: 0, cash: 0, credit: 0, collected: 0 };
   for (const tx of transactions) {
     if (dayKey(tx.ts) !== today) continue;
     if (tx.type === 'credit_sale' || tx.type === 'cash_sale') {
@@ -156,6 +156,8 @@ export function todayTotals(transactions, now = new Date()) {
       totals.salesCount += 1;
     }
     if (tx.type === 'cash_sale' || tx.type === 'payment') totals.cash += tx.amount;
+    if (tx.type === 'credit_sale') totals.credit += tx.amount;
+    if (tx.type === 'payment') totals.collected += tx.amount;
   }
   return totals;
 }

@@ -3,12 +3,13 @@ import { Card } from '../components/ui/Card.jsx';
 import { AboutCard } from '../features/settings/AboutCard.jsx';
 import { DataCard } from '../features/settings/DataCard.jsx';
 import { ShopNameForm } from '../features/settings/ShopNameForm.jsx';
+import { UpiForm } from '../features/settings/UpiForm.jsx';
 import { LanguageSwitch } from '../features/voice/LanguageSwitch.jsx';
 import { useShop, useShopDispatch, useStrings } from '../store/ShopContext.jsx';
 
 export function SettingsPage() {
   const t = useStrings();
-  const { shopName, muted } = useShop((s) => s.settings);
+  const { shopName, muted, upiId = '' } = useShop((s) => s.settings);
   const dispatch = useShopDispatch();
 
   return (
@@ -17,7 +18,10 @@ export function SettingsPage() {
 
       <Card title={t.shopCard}>
         {/* key: after "Reset demo data" the form starts again from the seed name */}
-        <ShopNameForm key={shopName} shopName={shopName} />
+        <div className="flex flex-col gap-4">
+          <ShopNameForm key={shopName} shopName={shopName} />
+          <UpiForm key={upiId} upiId={upiId} />
+        </div>
       </Card>
 
       <Card title={t.voiceCard}>
