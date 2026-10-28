@@ -791,24 +791,24 @@ Every rule that touches money or meaning is unit-tested in `src/lib`; everything
 
 ### 11.2 Manual test checklist
 
-- [ ] Fresh load: dashboard shows seed data, 2 low-stock items, chart with 7 bars
-- [ ] Each demo phrase by **voice** gives the correct card (Hinglish mode)
-- [ ] Each demo phrase by **chip** gives the correct card
-- [ ] Confirm updates dashboard, khata and stock; speech plays; undo restores everything
-- [ ] Edit on card: stepper, remove item, change customer, change intent
-- [ ] Validation: confirm disabled with reason when customer or quantity is missing
-- [ ] All 5 spoken questions answered correctly, shown and spoken
-- [ ] Copy reminder in all 3 languages; toast appears; nothing is sent
-- [ ] Mic permission denied → message, typing works
-- [ ] Wi-Fi off → network message, chips and typing work
-- [ ] Mute → no speech, text still shown
-- [ ] Refresh keeps data; Reset demo data restores seed
-- [ ] Keyboard only: Tab through, Space for mic, Enter confirm, Esc cancel
-- [ ] Layout at 375, 768, 1280 and 1440 px; no horizontal scroll
-- [ ] Reduced motion setting removes animations
-- [ ] Zero console errors during the full demo run
-- [ ] `npm test`, `npm run lint`, `npm run build` all pass
-- [ ] Fresh clone → `npm install` → `npm run dev` works using only README steps
+- [x] ✅ Fresh load: dashboard shows seed data, 2 low-stock items, chart with 7 bars
+- [ ] Each demo phrase by **voice** gives the correct card (Hinglish mode) — *not verified: needs a real mic in Chrome (the recognition → card path was checked with a stubbed recogniser only)*
+- [x] ✅ Each demo phrase by **chip** gives the correct card
+- [ ] Confirm updates dashboard, khata and stock; speech plays; undo restores everything — *dashboard, khata, stock, undo and the exact spoken sentence verified; audible playback not verified (headless browser has no voices)*
+- [x] ✅ Edit on card: stepper, remove item, change customer, change intent
+- [x] ✅ Validation: confirm disabled with reason when customer or quantity is missing
+- [x] ✅ All 5 spoken questions answered correctly, shown and spoken
+- [x] ✅ Copy reminder in all 3 languages; toast appears; nothing is sent
+- [x] ✅ Mic permission denied → message, typing works (browser `not-allowed` error simulated)
+- [x] ✅ Wi-Fi off → network message, chips and typing work (browser offline + simulated `network` error)
+- [x] ✅ Mute → no speech, text still shown
+- [x] ✅ Refresh keeps data; Reset demo data restores seed
+- [x] ✅ Keyboard only: Tab through, Space for mic, Enter confirm, Esc cancel
+- [x] ✅ Layout at 375, 768, 1280 and 1440 px; no horizontal scroll
+- [x] ✅ Reduced motion setting removes animations
+- [x] ✅ Zero console errors during the full demo run
+- [x] ✅ `npm test`, `npm run lint`, `npm run build` all pass
+- [x] ✅ Fresh clone → `npm install` → `npm run dev` works using only README steps
 
 ## 12. Risks, timeline and demo plan
 
