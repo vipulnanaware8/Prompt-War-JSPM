@@ -4,6 +4,8 @@
 
 Built for PromptWars × KickToTech 2026, Entrepreneurship & Local Business track. The full specification is in [docs/SRS.md](docs/SRS.md).
 
+**Live demo:** https://bol-ke-hisaab-2026.web.app (open in Chrome; it can be installed to the home screen as an app).
+
 ## Run it
 
 You need **Node.js 20 or newer** and **Google Chrome** (Edge also works).
@@ -21,10 +23,11 @@ When you tap the mic for the first time, allow microphone access. The mic needs 
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Runs the Vitest unit tests (parser, ledger, queries, forecast, reminders, seed, persistence) |
+| `npm test` | Runs the Vitest unit tests (parser, ledger, queries, forecast, reminders, promises, to-dos, voice fixes, seed, persistence) |
 | `npm run lint` | Runs ESLint (react, react-hooks, jsx-a11y) and the Prettier check |
 | `npm run build` | Builds for production into `dist/` |
 | `npm run preview` | Serves the production build at http://localhost:4173 |
+| `npm run build && firebase deploy` | Deploys `dist/` to Firebase Hosting (project in `.firebaserc`) |
 
 ## Try it in one minute
 
@@ -37,8 +40,12 @@ Tap the mic and say one of these phrases, or tap it as a chip under **Try saying
 | 3 | 10 packet Maggi aaya | Stock in: Maggi goes from 6 to 16 |
 | 4 | 3 Maggi cash mein becha | Cash sale: 3 × ₹14 = **₹42** |
 | 5 | Kiska udhaar sabse zyada hai? | Spoken answer: Sunita Jadhav, ₹650 |
+| 6 | Mohan Sunday ko dega | Promise to pay, due next Sunday. Shows on Home until Mohan pays or clears his dues |
+| 7 | Maggi ka rate 15 kar do | Price change: old price → new price, editable on the card before you confirm |
+| 8 | Aaj ka hisaab batao | Spoken day summary: sales, cash collected and udhaar given today |
+| 9 | Kya mangwana hai? | Order list: items at or below their reorder level, with how much to order |
 
-Every entry opens a **confirmation card**. On the card you can change quantities, remove items, switch the customer or the entry type, and then confirm. After you confirm, the dashboard, khata and stock update, the app speaks the new balance, and an **Undo** button stays up for 10 seconds.
+Every entry opens a **confirmation card**. On the card you can change quantities, remove items, switch the customer or the entry type, and then confirm. You can also **fix the card by voice**: tap **Bolkar badliye** and say "Nahi, teen Maggi", and only what you said changes. After you confirm, the dashboard, khata and stock update, the app speaks the new balance, and an **Undo** button stays up for 10 seconds.
 
 You can also ask questions like:
 
@@ -55,10 +62,12 @@ The same sentences also work in Devanagari, for example "रमेश ने द
 
 | Screen | What it shows |
 | --- | --- |
-| **Home** | Today's sales, total udhaar, cash collected, low-stock count, a 7-day sales chart, top debtors and recent entries |
-| **Khata** | Customers sorted by balance, with search in Latin and Devanagari. Each customer shows their last entries and a polite **reminder you can copy** in Hinglish, Hindi or Marathi. The reminder is copied only, never sent |
+| **Home** | Today's sales as the headline number, compared with yesterday at the same time, plus cash collected. A **What to do now** list (items to restock, udhaar to collect, promises due) with one action each, then total udhaar, low-stock count, a 7-day sales chart, top debtors and recent entries |
+| **Khata** | Customers sorted by balance, with search in Latin and Devanagari. Each customer shows their last entries, any promise to pay, and a polite **reminder you can copy** in Hinglish, Hindi or Marathi, with a UPI pay link when the shop has a UPI ID. The reminder is copied only, never sent |
 | **Stock** | Every item with price, a stock bar against its reorder level, and "runs out in N days" based on the last 7 days of sales |
-| **Settings** | Shop name, voice language, mute, export data as JSON, and reset demo data |
+| **Settings** | Shop name, shop UPI ID (for reminders), voice language, mute, export data as JSON, and reset demo data |
+
+On phones, a **speak-or-type bar** sits above the tab bar on every screen: tap it to talk, or type and send. The app is an installable **PWA** with a manifest, icons and a service worker, so it opens offline after the first visit.
 
 ## How it works
 
@@ -87,7 +96,7 @@ All data stays in this browser's `localStorage`. The app collects no phone numbe
 
 - Understanding is rule-based on purpose. It covers the common sentence patterns in [SRS Section 9](docs/SRS.md#9-command-parser-specification). For unusual sentences, edit them on the card or type them instead.
 - Voice input needs Chrome or Edge and an internet connection. Typing, the demo chips and the whole ledger work offline.
-- The app runs on a single device with no cloud sync. Clearing the site data clears the khata.
+- The app runs on a single device with no cloud sync. Firebase only hosts the static files; the khata itself never leaves the browser. Clearing the site data clears the khata.
 - Which speech-output voices are available depends on the device. If there is no Hindi or Marathi voice, the app speaks with an Indian English voice or shows the answer as text only.
 
 ## Project layout
@@ -98,7 +107,8 @@ src/app/               layout: sidebar / tab bar / voice panel
 src/pages/             Home, Khata, Stock, Settings
 src/features/          voice, commands (confirmation card), dashboard, khata, stock, settings
 src/components/ui/     shared UI components
-src/lib/               pure logic: parser, ledger, queries, forecast, reminders, format
+src/lib/               pure logic: parser, ledger, queries, forecast, reminders, promises, correction, format
+public/                PWA manifest, service worker, icons
 src/store/             context, reducer, selectors, persistence
 src/data/              catalogue, customers, deterministic 7-day seed
 src/i18n/strings.js    all UI text and speech templates (Hinglish, हिंदी, मराठी)

@@ -135,6 +135,41 @@ export const PROMISE_WORDS = [
   'देतील',
 ];
 
+/** Price words: "Maggi ka rate 15 kar do". */
+export const PRICE_WORDS = [
+  'rate',
+  'daam',
+  'bhav',
+  'bhaav',
+  'price',
+  'kimat',
+  'keemat',
+  'रेट',
+  'दाम',
+  'भाव',
+  'कीमत',
+  'किंमत',
+  'दर',
+];
+
+/** Order-list words: "Kya mangwana hai?". */
+export const ORDER_WORDS = [
+  'mangwana',
+  'mangvana',
+  'mangana',
+  'mangwao',
+  'order',
+  'मंगवाना',
+  'मँगवाना',
+  'मंगाना',
+  'मागवायचे',
+  'मागवायचं',
+  'ऑर्डर',
+];
+
+/** "No, …" at the start of a correction to the open card: "Nahi, teen Maggi". */
+export const CORRECTION_WORDS = ['nahi', 'nahin', 'nai', 'no', 'नहीं', 'नही', 'नाही'];
+
 /** "Today's account" words for the end-of-day summary. */
 export const SUMMARY_WORDS = ['hisaab', 'hisab', 'summary', 'हिसाब', 'हिशोब', 'हिशेब'];
 
@@ -291,6 +326,9 @@ export const KNOWN_WORDS = new Set([
   ...Object.values(INTENT_KEYWORDS).flat(),
   ...Object.values(QUERY_WORDS).flat(),
   ...PROMISE_WORDS,
+  ...PRICE_WORDS,
+  ...ORDER_WORDS,
+  ...CORRECTION_WORDS,
   ...SUMMARY_WORDS,
   ...Object.keys(DAY_WORDS),
   ...Object.keys(UNIT_WORDS),

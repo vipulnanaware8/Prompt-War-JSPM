@@ -9,7 +9,7 @@ import { useShop, useShopDispatch, useStrings } from '../store/ShopContext.jsx';
 
 export function SettingsPage() {
   const t = useStrings();
-  const { shopName, muted, upiId = '' } = useShop((s) => s.settings);
+  const { shopName, muted, quiet = false, upiId = '' } = useShop((s) => s.settings);
   const dispatch = useShopDispatch();
 
   return (
@@ -42,6 +42,21 @@ export function SettingsPage() {
               checked={!muted}
               onChange={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { muted: !muted } })}
               className="size-6 shrink-0 cursor-pointer accent-primary"
+            />
+          </label>
+          <label className="flex min-h-11 cursor-pointer items-center justify-between gap-4">
+            <span>
+              <span className="block text-body font-semibold">{t.quietLabel}</span>
+              <span className="block text-small text-muted">{t.quietHelp}</span>
+            </span>
+            {/* Checked = only "Ho gaya" is spoken; nothing to choose while muted */}
+            <input
+              type="checkbox"
+              role="switch"
+              checked={quiet}
+              disabled={muted}
+              onChange={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { quiet: !quiet } })}
+              className="size-6 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
             />
           </label>
         </div>

@@ -2,7 +2,7 @@
 // speak or type → parse → confirmation card → confirm → speak back → undo for 10 s.
 
 import { useCallback, useState } from 'react';
-import { parseCommand } from '../../lib/parser/index.js';
+import { parseCommand, parseCorrection } from '../../lib/parser/index.js';
 import { answerQuery } from '../../lib/queries.js';
 import {
   balanceAfter,
@@ -11,6 +11,7 @@ import {
   computeBalances,
 } from '../../lib/ledger.js';
 import { buildPromise, daysUntil } from '../../lib/promises.js';
+import { applyCorrection } from '../../lib/correction.js';
 import { SPEECH_LANG } from '../../i18n/strings.js';
 import { useShop, useShopDispatch, useStrings } from '../../store/ShopContext.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
@@ -36,24 +37,36 @@ export function useCommandFlow() {
   const t = useStrings();
   const { showToast } = useToast();
   const { speak, cancel: cancelSpeech } = useSpeechSynthesis();
-  const { language, muted } = state.settings;
+  const { language, muted, quiet } = state.settings;
 
   const [text, setText] = useState('');
   const [draft, setDraft] = useState(null);
   const [answer, setAnswer] = useState(null); // { kind: 'answer'|'unknown', ... }
   const [voiceOpen, setVoiceOpen] = useState(false); // mobile voice sheet
 
+  // Quiet mode: at a busy counter, say only "Ho gaya" — no names or amounts out loud.
   const say = useCallback(
     (sentence) => {
-      if (!muted) speak(sentence, language);
+      if (!muted) speak(quiet ? t.quietSpeech : sentence, language);
     },
-    [muted, speak, language],
+    [muted, quiet, t, speak, language],
   );
 
   /** Parse a command and show the card, an answer, or "not understood". Returns the intent. */
   const submit = useCallback(
     (input) => {
       cancelSpeech();
+      // While the card is open, speech corrects it instead of starting a new entry.
+      if (draft) {
+        const fixed = applyCorrection(draft, parseCorrection(input, state));
+        if (fixed) {
+          setDraft(fixed);
+          say(t.correct.done);
+        } else {
+          showToast({ type: 'warning', message: t.correct.failed });
+        }
+        return;
+      }
       const result = parseCommand(input, state);
       if (result.intent === 'query') {
         const data = answerQuery(result.query, state);
@@ -97,7 +110,7 @@ export function useCommandFlow() {
       }
       return result.intent;
     },
-    [cancelSpeech, state, t, say, language, dispatch, showToast],
+    [cancelSpeech, state, t, say, language, dispatch, showToast, draft],
   );
 
   const mic = useSpeechRecognition({
@@ -119,6 +132,28 @@ export function useCommandFlow() {
 
   /** Save the confirmed draft, speak the result and offer Undo for 10 s. */
   const confirm = useCallback(() => {
+    if (draft.intent === 'price_update') {
+      const item = state.items.find((i) => i.id === draft.lines[0].itemId);
+      const price = Math.round(draft.amount * 100) / 100;
+      const sentence = t.price.saved(item.name, price);
+      dispatch({ type: 'SET_PRICE', payload: { itemId: item.id, price } });
+      setDraft(null);
+      say(sentence);
+      showToast({
+        type: 'success',
+        message: sentence,
+        duration: 10000,
+        action: {
+          label: t.toast.undo,
+          onClick: () => {
+            dispatch({ type: 'SET_PRICE', payload: { itemId: item.id, price: item.price } });
+            cancelSpeech();
+            setTimeout(() => showToast({ type: 'warning', message: t.price.undone }), 0);
+          },
+        },
+      });
+      return;
+    }
     const tx = buildTransaction(draft, state.items, { id: `t_${Date.now().toString(36)}` });
     const customer = state.customers.find((c) => c.id === tx.customerId);
     const before = customer ? computeBalances(state.customers, state.transactions)[customer.id] : 0;

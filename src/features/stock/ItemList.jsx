@@ -16,7 +16,7 @@ export function ItemList({ items }) {
                 {t.perUnit(formatRupees(item.price), item.unit)}
               </p>
             </div>
-            <p className="shrink-0 text-h2 font-semibold tabular-nums">
+            <p className="shrink-0 font-ledger text-h2 font-semibold tabular-nums">
               {formatQty(item.stock, item.unit)}
             </p>
           </div>

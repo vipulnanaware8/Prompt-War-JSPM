@@ -315,6 +315,7 @@ const voiceHinglish = {
       'Ramesh ka kitna baaki hai?',
       'Kya khatam hone wala hai?',
       'Aaj ka hisaab batao',
+      'Kya mangwana hai?',
     ],
     replay: 'Phir se sunein',
     title: 'Jawab',
@@ -674,6 +675,32 @@ const extrasHinglish = {
     ]
       .filter(Boolean)
       .join(' '),
+  price: {
+    title: 'Rate badliye',
+    current: 'Abhi',
+    newPrice: (unit) => `Naya rate (₹ / ${unit})`,
+    confirm: (amount) => `Rate ${amount} kariye`,
+    saved: (name, price) => `${name} ka rate ab ${price} rupaye.`,
+    undone: 'Purana rate wapas',
+  },
+  order: {
+    sentence: (list) => `Mangwana hai: ${list}.`,
+    none: 'Abhi kuch mangwane ki zaroorat nahi.',
+    share: (shop, lines) =>
+      `Namaste, ${shop} ke liye order:\n${lines.map((l) => `• ${l}`).join('\n')}\nDhanyavaad!`,
+    whatsapp: 'Supplier ko WhatsApp kariye',
+  },
+  correct: {
+    button: 'Bolkar badliye',
+    listening: 'Sun raha hoon… rokne ke liye dabaiye',
+    example: 'Nahi, teen Maggi',
+    priceExample: 'Nahi, 16',
+    done: 'Theek kar diya.',
+    failed: 'Samajh nahi aaya — item aur sankhya boliye, jaise "Nahi, teen Maggi"',
+  },
+  quietLabel: 'Quiet mode',
+  quietHelp: 'Grahak saamne hon to sirf "Ho gaya" bolega — naam ya rakam nahi',
+  quietSpeech: 'Ho gaya.',
   upiLabel: 'UPI ID (reminder mein judegi)',
   upiInvalid: 'UPI ID sahi nahi lagti — jaise sharma@upi',
   whatsapp: 'WhatsApp par bhejiye',
@@ -701,6 +728,32 @@ const extrasHi = {
     ]
       .filter(Boolean)
       .join(' '),
+  price: {
+    title: 'रेट बदलिए',
+    current: 'अभी',
+    newPrice: (unit) => `नया रेट (₹ / ${unit})`,
+    confirm: (amount) => `रेट ${amount} करें`,
+    saved: (name, price) => `${name} का रेट अब ${price} रुपये।`,
+    undone: 'पुराना रेट वापस',
+  },
+  order: {
+    sentence: (list) => `मँगवाना है: ${list}।`,
+    none: 'अभी कुछ मँगवाने की ज़रूरत नहीं।',
+    share: (shop, lines) =>
+      `नमस्ते, ${shop} के लिए ऑर्डर:\n${lines.map((l) => `• ${l}`).join('\n')}\nधन्यवाद!`,
+    whatsapp: 'सप्लायर को WhatsApp करें',
+  },
+  correct: {
+    button: 'बोलकर बदलिए',
+    listening: 'सुन रहा हूँ… रोकने के लिए दबाइए',
+    example: 'नहीं, तीन मैगी',
+    priceExample: 'नहीं, 16',
+    done: 'ठीक कर दिया।',
+    failed: 'समझ नहीं आया — सामान और संख्या बोलिए, जैसे "नहीं, तीन मैगी"',
+  },
+  quietLabel: 'शांत मोड',
+  quietHelp: 'ग्राहक सामने हों तो सिर्फ़ "हो गया" बोलेगा — नाम या रकम नहीं',
+  quietSpeech: 'हो गया।',
   upiLabel: 'UPI ID (रिमाइंडर में जुड़ेगी)',
   upiInvalid: 'UPI ID सही नहीं लगती — जैसे sharma@upi',
   whatsapp: 'WhatsApp पर भेजें',
@@ -730,6 +783,32 @@ const extrasMr = {
     ]
       .filter(Boolean)
       .join(' '),
+  price: {
+    title: 'दर बदला',
+    current: 'सध्या',
+    newPrice: (unit) => `नवीन दर (₹ / ${unit})`,
+    confirm: (amount) => `दर ${amount} करा`,
+    saved: (name, price) => `${name} चा दर आता ${price} रुपये.`,
+    undone: 'जुना दर परत',
+  },
+  order: {
+    sentence: (list) => `मागवायचे आहे: ${list}.`,
+    none: 'सध्या काही मागवायची गरज नाही.',
+    share: (shop, lines) =>
+      `नमस्कार, ${shop} साठी ऑर्डर:\n${lines.map((l) => `• ${l}`).join('\n')}\nधन्यवाद!`,
+    whatsapp: 'पुरवठादाराला WhatsApp करा',
+  },
+  correct: {
+    button: 'बोलून बदला',
+    listening: 'ऐकत आहे… थांबवण्यासाठी दाबा',
+    example: 'नाही, तीन मॅगी',
+    priceExample: 'नाही, 16',
+    done: 'दुरुस्त केले.',
+    failed: 'समजले नाही — वस्तू आणि संख्या बोला, उदा. "नाही, तीन मॅगी"',
+  },
+  quietLabel: 'शांत मोड',
+  quietHelp: 'ग्राहक समोर असताना फक्त "झाले" बोलेल — नाव किंवा रक्कम नाही',
+  quietSpeech: 'झाले.',
   upiLabel: 'UPI ID (आठवणीत जोडली जाईल)',
   upiInvalid: 'UPI ID बरोबर वाटत नाही — उदा. sharma@upi',
   whatsapp: 'WhatsApp वर पाठवा',

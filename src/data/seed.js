@@ -13,7 +13,7 @@ export const SCHEMA_VERSION = 1;
  * @typedef {{ id: string, ts: string, type: 'credit_sale'|'cash_sale'|'payment'|'stock_in',
  *   customerId?: string, lines?: TxLine[], amount: number }} Transaction
  * @typedef {{ schemaVersion: number,
- *   settings: { shopName: string, language: 'hinglish'|'hi'|'mr', muted: boolean, upiId?: string },
+ *   settings: { shopName: string, language: 'hinglish'|'hi'|'mr', muted: boolean, quiet?: boolean, upiId?: string },
  *   items: object[], customers: object[], transactions: Transaction[] }} ShopState
  */
 

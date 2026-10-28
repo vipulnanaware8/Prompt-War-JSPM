@@ -3,6 +3,8 @@
 import {
   DAY_WORDS,
   INTENT_KEYWORDS,
+  ORDER_WORDS,
+  PRICE_WORDS,
   PROMISE_WORDS,
   QUERY_WORDS,
   SUMMARY_WORDS,
@@ -13,7 +15,7 @@ const has = (tokens, words) => tokens.some((t) => words.includes(t));
 /**
  * @param {string[]} tokens normalised tokens
  * @param {{ hasQuestionMark: boolean, items: object[], customer: object|null, amount: number|null }} found
- * @returns {{ intent: 'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'promise'|'unknown', confidence: number }}
+ * @returns {{ intent: 'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'promise'|'price_update'|'unknown', confidence: number }}
  */
 export function detectIntent(tokens, { hasQuestionMark, items, customer, amount }) {
   const hasItems = items.length > 0;
@@ -22,8 +24,13 @@ export function detectIntent(tokens, { hasQuestionMark, items, customer, amount 
   if (!hasQuestionMark && customer && has(tokens, PROMISE_WORDS)) {
     return { intent: 'promise', confidence: 1 };
   }
+  // "Maggi ka rate 15 kar do" — change one item's price.
+  if (!hasQuestionMark && hasItems && has(tokens, PRICE_WORDS)) {
+    return { intent: 'price_update', confidence: 1 };
+  }
   if (hasQuestionMark || has(tokens, INTENT_KEYWORDS.query))
     return { intent: 'query', confidence: 1 };
+  if (has(tokens, ORDER_WORDS) && !customer) return { intent: 'query', confidence: 1 };
   if (has(tokens, SUMMARY_WORDS) && !customer && !hasItems)
     return { intent: 'query', confidence: 1 };
   if (has(tokens, INTENT_KEYWORDS.credit_sale) && (hasItems || amount !== null)) {
@@ -51,6 +58,7 @@ export function detectIntent(tokens, { hasQuestionMark, items, customer, amount 
 export function detectQuery(tokens, { items, customer }) {
   const aboutUdhaar = has(tokens, INTENT_KEYWORDS.credit_sale);
   if (has(tokens, SUMMARY_WORDS) && !customer) return { type: 'day_summary' };
+  if (has(tokens, ORDER_WORDS)) return { type: 'order_list' };
   if (has(tokens, QUERY_WORDS.most) && aboutUdhaar) return { type: 'top_debtor' };
   if (has(tokens, QUERY_WORDS.sales)) return { type: 'today_sales' };
   if (has(tokens, QUERY_WORDS.runningOut)) return { type: 'running_out' };

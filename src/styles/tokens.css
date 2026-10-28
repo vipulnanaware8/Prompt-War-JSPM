@@ -1,13 +1,16 @@
-/* Design tokens — SRS Section 7.2. The only place hex values live. */
+/* Design tokens — SRS Section 7.2, "Bahi-Khata" theme: cream ledger paper, red-ink accents.
+   The only place hex values live. */
 :root {
-  --bg: #fffbf5;
-  --surface: #ffffff;
-  --ink: #1c1917;
-  --muted: #57534e;
-  --border: #e7e0d6;
-  --primary: #c2410c;
-  --primary-strong: #9a3412;
-  --primary-soft: #ffedd5;
+  --bg: #f6eedd;
+  --surface: #fffaf0;
+  --ink: #2b1d14;
+  --muted: #6b5646;
+  --border: #e3d4b9;
+  --primary: #8b1e1e;
+  --primary-strong: #6e1515;
+  --primary-soft: #f5e1d7;
+  --rule: rgba(139, 30, 30, 0.07); /* faint ruled lines on cards */
+  --margin: rgba(185, 28, 28, 0.55); /* red margin line on khata rows */
   --success: #15803d;
   --success-soft: #dcfce7;
   --danger: #b91c1c;
@@ -16,9 +19,9 @@
   --warning-soft: #fef3c7;
   --info: #1d4ed8;
   --info-soft: #dbeafe;
-  --panel-text: #fafaf9;
-  --panel-muted: #a8a29e;
-  --glow-mic: 0 0 0 8px rgba(234, 88, 12, 0.15), 0 0 40px rgba(234, 88, 12, 0.35);
+  --panel-text: #fbf5ea;
+  --panel-muted: #b5a491;
+  --glow-mic: 0 0 0 8px rgba(185, 28, 28, 0.2), 0 0 40px rgba(185, 28, 28, 0.4);
   --dur-fast: 150ms;
   --dur-base: 200ms;
   --dur-slow: 300ms;
@@ -31,11 +34,13 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --shadow-card: 0 1px 2px rgba(28, 25, 23, 0.06), 0 4px 12px rgba(28, 25, 23, 0.06);
-  --shadow-raised: 0 12px 32px rgba(28, 25, 23, 0.12);
+  --shadow-card: 0 1px 2px rgba(43, 29, 20, 0.06), 0 4px 12px rgba(43, 29, 20, 0.06);
+  --shadow-raised: 0 12px 32px rgba(43, 29, 20, 0.14);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   --font-sans: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
+  /* Headings and money, like a hand-kept ledger (font-ledger) */
+  --font-ledger: 'Noto Serif', 'Noto Serif Devanagari', Georgia, serif;
 
   /* Type scale (size / line height) — SRS 7.2 Typography */
   --text-display: 40px;

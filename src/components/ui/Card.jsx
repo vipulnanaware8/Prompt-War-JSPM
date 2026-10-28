@@ -1,6 +1,6 @@
 // Card — SRS 7.4. `onClick` makes it interactive (a real button with hover lift).
 
-const BASE = 'rounded-lg border border-border bg-surface p-4 shadow-card sm:p-6';
+const BASE = 'paper rounded-lg border border-border bg-surface p-4 shadow-card sm:p-6';
 
 export function Card({ title, action, onClick, className = '', children, ...props }) {
   if (onClick) {

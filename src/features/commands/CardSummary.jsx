@@ -20,7 +20,9 @@ export function CardSummary({ warnings, total }) {
       {total !== null && (
         <div className="flex items-baseline justify-between border-t border-border pt-3">
           <span className="text-h2 font-semibold">{t.card.total}</span>
-          <span className="text-display font-bold tabular-nums">{formatRupees(total)}</span>
+          <span className="font-ledger text-display font-bold tabular-nums">
+            {formatRupees(total)}
+          </span>
         </div>
       )}
     </>

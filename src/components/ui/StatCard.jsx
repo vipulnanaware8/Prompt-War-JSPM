@@ -29,7 +29,7 @@ export function StatCard({
       {/* Screen readers get the exact value; the animated one is visual only. */}
       {/* Never truncate money: narrow cards (4 in a row on small desktops) use the H2 size */}
       <span
-        className="text-h2 font-bold whitespace-nowrap tabular-nums @[7rem]:text-h1"
+        className="font-ledger text-h2 font-bold whitespace-nowrap tabular-nums @[7rem]:text-h1"
         aria-hidden="true"
       >
         {format(shown)}

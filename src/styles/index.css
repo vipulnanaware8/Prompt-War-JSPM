@@ -8,11 +8,28 @@
   body {
     @apply bg-bg font-sans text-body text-ink antialiased;
   }
+  h1,
+  h2 {
+    font-family: var(--font-ledger);
+  }
   /* Visible focus ring on every control (NFR-7) */
   :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
+}
+
+/* Ledger paper: faint ruled lines every 32 px. */
+@utility paper {
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+}
+
+/* Double red margin line on the left edge, as in a bahi-khata. */
+@utility ledger-margin {
+  box-shadow:
+    inset 4px 0 0 var(--margin),
+    inset 6px 0 0 var(--surface),
+    inset 7px 0 0 var(--margin);
 }
 
 /* Reduced motion: stop CSS transitions/animations (framer-motion handles its own). */

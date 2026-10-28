@@ -16,11 +16,13 @@ export const DEMO_PHRASES = [
   'Kiska udhaar sabse zyada hai?',
   'Mohan Sunday ko dega',
   'Aaj ka hisaab batao',
+  'Maggi ka rate 15 kar do',
+  'Kya mangwana hai?',
 ];
 
 /**
  * @typedef {Object} ParseResult
- * @property {'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'promise'|'unknown'} intent
+ * @property {'credit_sale'|'cash_sale'|'payment'|'stock_in'|'query'|'promise'|'price_update'|'unknown'} intent
  * @property {{ id: string, matchedText: string, confidence: number } | null} customer
  * @property {string|null} newCustomerName  name-like word that is not a known customer
  * @property {Array<{ itemId: string, qty: number, unit: string, matchedText: string, confidence: number }>} items
@@ -50,6 +52,39 @@ function extractAmount(tokens, used) {
     }
   }
   return fallback;
+}
+
+/** The last number said anywhere, e.g. the new price in "Maggi ka rate 15 kar do". */
+function lastNumber(tokens) {
+  let value = null;
+  for (let i = 0; i < tokens.length; i += 1) {
+    // Bare number words are skipped, so "kar do" is never read as 2.
+    const number = readNumber(tokens, i, () => false);
+    if (number) {
+      value = number.value;
+      i += number.length - 1;
+    }
+  }
+  return value;
+}
+
+/**
+ * What a correction to the open card says ("Nahi, teen Maggi", "nahi 300", "nahi, Sunita"):
+ * items, customer and amount, with no intent rules applied.
+ * @returns {{ items: object[], customer: object|null, amount: number|null }}
+ */
+export function parseCorrection(text, { items, customers } = {}) {
+  try {
+    const tokens = normalize(typeof text === 'string' ? text : '')
+      .split(' ')
+      .filter(Boolean);
+    const used = tokens.map(() => false);
+    const lines = extractItems(tokens, items, used);
+    const { customer } = extractCustomer(tokens, customers, used);
+    return { items: lines, customer, amount: extractAmount(tokens, used) };
+  } catch {
+    return { items: [], customer: null, amount: null };
+  }
 }
 
 function unknownResult(raw, unmatched = []) {
@@ -92,6 +127,21 @@ export function parseCommand(text, { items, customers } = {}) {
       amount,
     });
     if (intent === 'unknown') return unknownResult(raw, unmatched);
+    if (intent === 'price_update') {
+      // The number may have been read as a quantity ("Maggi 15"), so take it from the sentence.
+      return {
+        intent,
+        customer: null,
+        newCustomerName: null,
+        items: [{ ...lines[0], qty: 1 }],
+        amount: lastNumber(tokens),
+        query: null,
+        promiseDay: null,
+        unmatched,
+        raw,
+        suggestions: [],
+      };
+    }
 
     const isMoneyOnly =
       intent === 'payment' ||

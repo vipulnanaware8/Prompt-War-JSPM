@@ -34,16 +34,42 @@ export function useSpeechRecognition({ lang, onFinal }) {
     onFinalRef.current = onFinal;
   }, [onFinal]);
 
-  const stop = useCallback(() => recognitionRef.current?.stop(), []);
+  const fail = useCallback((code) => {
+    recognitionRef.current = null;
+    setError(code);
+    setStatus('error');
+  }, []);
 
-  const start = useCallback(() => {
+  const start = useCallback(async () => {
     const Recognition = getRecognitionClass();
     if (!Recognition) {
-      setError('unsupported');
-      setStatus('error');
+      fail('unsupported');
+      return;
+    }
+    // Mic only works on https or localhost; a LAN IP over http is silently blocked.
+    if (!window.isSecureContext) {
+      fail('not-allowed');
       return;
     }
     if (recognitionRef.current) return;
+    recognitionRef.current = 'pending';
+    setError(null);
+    setStatus('listening');
+
+    // Ask for the mic first so permission / missing-device problems surface as clear errors.
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        const name = err?.name;
+        fail(
+          name === 'NotFoundError' || name === 'NotReadableError' ? 'audio-capture' : 'not-allowed',
+        );
+        return;
+      }
+    }
+    if (recognitionRef.current !== 'pending') return; // stopped while waiting for permission
 
     const recognition = new Recognition();
     recognition.lang = lang;
@@ -75,7 +101,9 @@ export function useSpeechRecognition({ lang, onFinal }) {
       if (failed) return;
       const text = (finalText || interimText).trim();
       if (!text) {
-        setStatus('idle');
+        // Tell the user nothing was heard instead of silently going back to idle.
+        setError('no-speech');
+        setStatus('error');
         return;
       }
       // Parse automatically — no extra tap needed (FR-VOICE-6).
@@ -87,18 +115,24 @@ export function useSpeechRecognition({ lang, onFinal }) {
     };
 
     recognitionRef.current = recognition;
-    setError(null);
     setTranscript({ final: '', interim: '' });
-    setStatus('listening');
     try {
       recognition.start();
       timerRef.current = setTimeout(() => recognition.stop(), MAX_LISTEN_MS);
     } catch {
-      recognitionRef.current = null;
-      setError('audio-capture');
-      setStatus('error');
+      fail('audio-capture');
     }
-  }, [lang]);
+  }, [lang, fail]);
+
+  const stop = useCallback(() => {
+    const current = recognitionRef.current;
+    if (current === 'pending') {
+      recognitionRef.current = null;
+      setStatus('idle');
+    } else {
+      current?.stop();
+    }
+  }, []);
 
   const toggle = useCallback(() => {
     if (recognitionRef.current) stop();
@@ -109,7 +143,7 @@ export function useSpeechRecognition({ lang, onFinal }) {
   useEffect(
     () => () => {
       clearTimeout(timerRef.current);
-      recognitionRef.current?.abort();
+      if (typeof recognitionRef.current === 'object') recognitionRef.current?.abort();
     },
     [],
   );

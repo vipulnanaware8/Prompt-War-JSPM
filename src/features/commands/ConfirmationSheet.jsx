@@ -17,6 +17,8 @@ import { CardSummary } from './CardSummary.jsx';
 import { CustomerRow } from './CustomerRow.jsx';
 import { IntentSwitch } from './IntentSwitch.jsx';
 import { LineItemRow } from './LineItemRow.jsx';
+import { PriceCard } from './PriceCard.jsx';
+import { VoiceFix } from './VoiceFix.jsx';
 
 export function ConfirmationSheet({ flow }) {
   const t = useStrings();
@@ -27,6 +29,51 @@ export function ConfirmationSheet({ flow }) {
 
   const { intent, lines } = draft;
   const update = (patch) => setDraft({ ...draft, ...patch });
+
+  if (intent === 'price_update') {
+    const item = items.find((i) => i.id === lines[0]?.itemId);
+    const valid = item && draft.amount > 0;
+    const confirmPrice = () => valid && flow.confirm();
+    return (
+      <Sheet
+        open
+        onClose={flow.cancel}
+        label={t.price.title}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+            e.preventDefault();
+            confirmPrice();
+          }
+        }}
+      >
+        <div className="flex flex-col gap-4 px-4 pt-2 pb-6 sm:px-6">
+          <h2 className="text-small font-medium text-muted">{t.price.title}</h2>
+          {item && (
+            <PriceCard item={item} price={draft.amount} onPrice={(amount) => update({ amount })} />
+          )}
+          <VoiceFix flow={flow} example={t.correct.priceExample} />
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="ghost" size="lg" onClick={flow.cancel}>
+              {t.card.cancel}
+            </Button>
+            <Button
+              size="lg"
+              className="sm:min-w-56"
+              disabled={!valid}
+              onClick={confirmPrice}
+              data-autofocus
+            >
+              {t.price.confirm(formatRupees(draft.amount ?? 0))}
+            </Button>
+          </div>
+          {!valid && (
+            <p className="text-right text-small font-medium text-danger">{t.card.reasons.amount}</p>
+          )}
+        </div>
+      </Sheet>
+    );
+  }
+
   const isPayment = intent === 'payment';
   const needsCustomer = intent === 'credit_sale' || isPayment;
   const amountOnly = isPayment || (intent === 'credit_sale' && lines.length === 0);
@@ -118,6 +165,8 @@ export function ConfirmationSheet({ flow }) {
             {lines.length === 0 && <li className="py-3 text-small text-muted">{t.card.noItems}</li>}
           </ul>
         )}
+
+        <VoiceFix flow={flow} example={amountOnly ? null : t.correct.example} />
 
         <CardSummary warnings={warnings} total={intent === 'stock_in' ? null : total} />
 

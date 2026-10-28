@@ -16,7 +16,7 @@ export function CustomerList({ customers, onOpen }) {
             type="button"
             onClick={() => onOpen(c.id)}
             aria-label={t.khata.openCustomer(c.name)}
-            className="flex w-full items-center gap-3 px-4 py-3 text-left transition-[transform,opacity] duration-150 ease-out hover:bg-bg sm:px-6"
+            className="ledger-margin flex w-full items-center gap-3 py-3 pr-4 pl-6 text-left transition-[transform,opacity] duration-150 ease-out hover:bg-bg sm:px-6"
           >
             <Avatar name={c.name} />
             <div className="min-w-0 flex-1">

@@ -4,7 +4,7 @@ import { applyTransaction, undoLast } from '../lib/ledger.js';
 
 /**
  * @param {import('../data/seed.js').ShopState} state
- * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'ADD_PROMISE'|'REMOVE_PROMISE'|'UPDATE_SETTINGS'|'RESET', payload: any }} action
+ * @param {{ type: 'CONFIRM_TX'|'UNDO_TX'|'ADD_CUSTOMER'|'ADD_PROMISE'|'REMOVE_PROMISE'|'SET_PRICE'|'UPDATE_SETTINGS'|'RESET', payload: any }} action
  */
 export function shopReducer(state, action) {
   switch (action.type) {
@@ -26,6 +26,13 @@ export function shopReducer(state, action) {
       return {
         ...state,
         promises: (state.promises ?? []).filter((p) => p.id !== action.payload),
+      };
+    case 'SET_PRICE': // past entries keep the price they were saved with
+      return {
+        ...state,
+        items: state.items.map((item) =>
+          item.id === action.payload.itemId ? { ...item, price: action.payload.price } : item,
+        ),
       };
     case 'RESET':
       return action.payload; // a fresh seed state, built by the caller

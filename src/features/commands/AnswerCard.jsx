@@ -1,7 +1,7 @@
 // Answers to spoken questions, and the "not understood" message with suggestions (SRS 7.5, 7.7).
-import { BookOpenText, MessageCircleQuestion, Volume2 } from 'lucide-react';
+import { BookOpenText, MessageCircle, MessageCircleQuestion, Volume2 } from 'lucide-react';
 import { IconButton } from '../../components/ui/IconButton.jsx';
-import { useStrings } from '../../store/ShopContext.jsx';
+import { useShop, useStrings } from '../../store/ShopContext.jsx';
 
 function SuggestionChips({ phrases, onPick }) {
   return (
@@ -22,6 +22,7 @@ function SuggestionChips({ phrases, onPick }) {
 
 export function AnswerCard({ answer, onReplay, onPick, onOpenCustomer }) {
   const t = useStrings();
+  const shopName = useShop((s) => s.settings.shopName);
   if (!answer) return null;
 
   if (answer.kind === 'unknown') {
@@ -44,9 +45,27 @@ export function AnswerCard({ answer, onReplay, onPick, onOpenCustomer }) {
           <Volume2 size={20} aria-hidden="true" />
         </IconButton>
       </div>
-      {answer.value && <p className="text-display font-bold tabular-nums">{answer.value}</p>}
+      {answer.value && (
+        <p className="font-ledger text-display font-bold tabular-nums">{answer.value}</p>
+      )}
       <p className="text-body">{answer.sentence}</p>
       {answer.examples && <SuggestionChips phrases={answer.examples} onPick={onPick} />}
+      {answer.orderLines && (
+        <button
+          type="button"
+          onClick={() =>
+            window.open(
+              `https://wa.me/?text=${encodeURIComponent(t.order.share(shopName, answer.orderLines))}`,
+              '_blank',
+              'noopener',
+            )
+          }
+          className="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 text-small font-semibold text-primary-strong hover:underline"
+        >
+          <MessageCircle size={20} aria-hidden="true" />
+          {t.order.whatsapp}
+        </button>
+      )}
       {answer.customerId && (
         <button
           type="button"

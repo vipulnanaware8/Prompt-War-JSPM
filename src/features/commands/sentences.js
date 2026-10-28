@@ -58,6 +58,11 @@ export function answerView(t, answer) {
       if (balance < 0) sentence = a.balanceAdvance(name, -balance);
       return { value: formatRupees(Math.abs(balance)), sentence };
     }
+    case 'order_list': {
+      if (answer.items.length === 0) return { value: null, sentence: t.order.none };
+      const list = answer.items.map((i) => `${i.name} ${formatQty(i.qty, i.unit)}`);
+      return { value: null, sentence: t.order.sentence(list.join(', ')), orderLines: list };
+    }
     case 'day_summary':
       return { value: formatRupees(answer.total), sentence: t.summary(answer) };
     case 'running_out':

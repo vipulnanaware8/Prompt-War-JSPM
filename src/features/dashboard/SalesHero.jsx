@@ -49,7 +49,7 @@ export function SalesHero() {
 
       <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
         {/* Screen readers get the exact value; the animated one is visual only. */}
-        <span className="text-display font-bold tabular-nums" aria-hidden="true">
+        <span className="font-ledger text-display font-bold tabular-nums" aria-hidden="true">
           {formatRupees(shown)}
         </span>
         <span className="sr-only">{formatRupees(today.sales)}</span>
@@ -67,7 +67,7 @@ export function SalesHero() {
         <span className="text-small font-medium text-muted">
           {t.stats.cash} <span className="font-normal">({t.stats.cashDelta})</span>
         </span>
-        <span className="text-body font-bold text-success tabular-nums">
+        <span className="font-ledger text-body font-bold text-success tabular-nums">
           {formatRupees(today.cash)}
         </span>
       </div>

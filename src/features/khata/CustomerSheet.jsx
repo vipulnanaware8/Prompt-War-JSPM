@@ -38,7 +38,7 @@ export function CustomerSheet({ customerId, open, onClose }) {
           <div className="flex flex-col gap-2">
             <p className="text-small font-medium text-muted">{t.khata.balanceLabel}</p>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-display font-bold tabular-nums">
+              <span className="font-ledger text-display font-bold tabular-nums">
                 {formatRupees(Math.abs(customer.balance))}
               </span>
               <BalanceChip balance={customer.balance} />

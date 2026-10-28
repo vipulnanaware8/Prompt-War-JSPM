@@ -1,7 +1,7 @@
 // Answers to spoken questions (SRS 5.8). Returns data; the UI turns it into a sentence.
 
 import { computeBalances, todayTotals } from './ledger.js';
-import { runningOut } from './forecast.js';
+import { orderList, runningOut } from './forecast.js';
 import { duePromises } from './promises.js';
 
 /**
@@ -39,6 +39,14 @@ export function answerQuery(query, state, now = new Date()) {
         runningOut: runningOut(state.items, state.transactions, now).length,
       };
     }
+    case 'order_list':
+      return {
+        type: 'order_list',
+        items: orderList(state.items, state.transactions, now).map((row) => ({
+          ...row,
+          name: item(row.itemId).name,
+        })),
+      };
     case 'item_stock': {
       const found = item(query.itemId);
       if (!found) return { type: 'unsupported' };

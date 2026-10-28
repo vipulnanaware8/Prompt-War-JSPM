@@ -36,6 +36,25 @@ export function daysUntilEmpty(item, transactions, now = new Date()) {
 }
 
 /**
+ * What to order: items running out within 3 days or at/below reorder level, with a quantity
+ * that covers a week of sales and refills the reorder level.
+ * @returns {Array<{ itemId: string, qty: number, unit: string }>}
+ */
+export function orderList(items, transactions, now = new Date()) {
+  return items
+    .map((item) => {
+      const perDay = avgDailySales(item.id, transactions, now);
+      const days = daysUntilEmpty(item, transactions, now);
+      const due = item.stock <= item.reorderLevel || (days !== null && days <= 3);
+      const qty = Math.max(1, Math.ceil(perDay * 7 + item.reorderLevel - item.stock));
+      return { itemId: item.id, qty, unit: item.unit, due, days: days ?? Infinity };
+    })
+    .filter((row) => row.due)
+    .sort((a, b) => a.days - b.days)
+    .map(({ itemId, qty, unit }) => ({ itemId, qty, unit }));
+}
+
+/**
  * Items that run out within `withinDays`, soonest first.
  * @returns {Array<{ itemId: string, days: number }>}
  */

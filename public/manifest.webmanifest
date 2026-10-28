@@ -1,0 +1,18 @@
+{
+  "name": "Bol Ke Hisaab",
+  "short_name": "Hisaab",
+  "description": "Bolo, aur hisaab ho gaya — voice khata for kirana shops",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F6EEDD",
+  "theme_color": "#8B1E1E",
+  "lang": "hi-IN",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
